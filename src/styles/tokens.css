@@ -1,0 +1,113 @@
+/*
+ * Design tokens ported from kankaku-hub's web app
+ * (web/app/assets/css/tailwind.css) as plain CSS custom properties, so the
+ * public site shares the same identity (dark-by-default neutral scale +
+ * single teal accent) without depending on the app's Tailwind build.
+ *
+ * Theme resolution: an explicit choice ("dark"/"light") is stored in
+ * localStorage and stamped on <html data-theme="...">; the default
+ * ("system") stamps nothing and prefers-color-scheme decides. Every token
+ * is defined on bare :root (light values), then overridden once under
+ * prefers-color-scheme (guarded to yield to an explicit light choice) and
+ * once under [data-theme="dark"], so the toggle wins in both directions.
+ */
+
+:root {
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-mono: "JetBrainsMono NF", "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-sans: "JetBrainsMono NF", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Meiryo",
+    "Noto Sans JP", "Noto Sans CJK JP", ui-sans-serif, system-ui, sans-serif;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  /* Darkened from the app's oklch(0.55 0.11 192) to clear WCAG AA 4.5:1
+     against white — the app's own value sits at ~4.48:1 (verified with
+     axe-core), just under threshold for normal-weight text/icons. */
+  --primary: #007d80;
+  --primary-foreground: oklch(0.98 0.01 192);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.96 0 0);
+  /* Darkened from the app's oklch(0.5 0 0) (~4.29:1 on white) to clear
+     WCAG AA 4.5:1 for small muted text against both pure white and the
+     ~3%-mixed card-bar background (e.g. .cmd-block__bar, footer notes). */
+  --muted-foreground: #707070;
+  --accent: oklch(0.94 0.03 192);
+  --accent-foreground: oklch(0.2 0.05 192);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.98 0 0);
+  /* Darkened from the app's oklch(0.6 0.14 150) for the same reason (see
+     --primary above): the badge/success pairing needs 4.5:1 and the
+     original sat at 3.48:1. */
+  --success: #207e4f;
+  --success-foreground: oklch(0.98 0 0);
+  --warning: oklch(0.75 0.15 80);
+  --warning-foreground: oklch(0.2 0 0);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: #007d80;
+  --shadow-color: 0 0% 0%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.97 0 0);
+    --card: oklch(0.18 0 0);
+    --card-foreground: oklch(0.97 0 0);
+    --popover: oklch(0.19 0 0);
+    --popover-foreground: oklch(0.97 0 0);
+    --primary: oklch(0.72 0.13 192);
+    --primary-foreground: oklch(0.145 0.02 192);
+    --secondary: oklch(0.26 0 0);
+    --secondary-foreground: oklch(0.97 0 0);
+    --muted: oklch(0.24 0 0);
+    --muted-foreground: oklch(0.68 0 0);
+    --accent: oklch(0.28 0.05 192);
+    --accent-foreground: oklch(0.9 0.05 192);
+    --destructive: oklch(0.65 0.22 27);
+    --destructive-foreground: oklch(0.97 0 0);
+    --success: oklch(0.68 0.15 150);
+    --success-foreground: oklch(0.12 0 0);
+    --warning: oklch(0.8 0.16 85);
+    --warning-foreground: oklch(0.12 0 0);
+    --border: oklch(1 0 0 / 12%);
+    --input: oklch(1 0 0 / 16%);
+    --ring: oklch(0.72 0.13 192);
+  }
+}
+
+:root[data-theme="dark"] {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.97 0 0);
+  --card: oklch(0.18 0 0);
+  --card-foreground: oklch(0.97 0 0);
+  --popover: oklch(0.19 0 0);
+  --popover-foreground: oklch(0.97 0 0);
+  --primary: oklch(0.72 0.13 192);
+  --primary-foreground: oklch(0.145 0.02 192);
+  --secondary: oklch(0.26 0 0);
+  --secondary-foreground: oklch(0.97 0 0);
+  --muted: oklch(0.24 0 0);
+  --muted-foreground: oklch(0.68 0 0);
+  --accent: oklch(0.28 0.05 192);
+  --accent-foreground: oklch(0.9 0.05 192);
+  --destructive: oklch(0.65 0.22 27);
+  --destructive-foreground: oklch(0.97 0 0);
+  --success: oklch(0.68 0.15 150);
+  --success-foreground: oklch(0.12 0 0);
+  --warning: oklch(0.8 0.16 85);
+  --warning-foreground: oklch(0.12 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.72 0.13 192);
+}

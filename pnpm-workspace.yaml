@@ -1,0 +1,5 @@
+# Standalone package: kankaku-hub's root is not a pnpm workspace, and this
+# file's presence keeps pnpm from trying to link site/ into any ancestor
+# workspace it might find later.
+packages:
+  - "."

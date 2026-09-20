@@ -1,0 +1,35 @@
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+
+# Source Nerd Font TTFs used to (re)build public/fonts/*.woff2 — see
+# scripts/build-font.mjs. ~2.5MB each; not needed once the subset is built.
+scripts/.font-src/
+
+# throwaway local test/debug output
+docs/screenshots/_*.png
+
+# Playwright test artifacts
+test-results/
+playwright-report/

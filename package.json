@@ -1,0 +1,42 @@
+{
+  "name": "kankaku-site",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "astro check",
+    "i18n:check": "node scripts/check-i18n.mjs",
+    "links:check": "node scripts/check-links.mjs",
+    "build:font": "node scripts/build-font.mjs",
+    "screenshots:refresh": "node scripts/refresh-screenshots.mjs",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/a11y.spec.ts"
+  },
+  "dependencies": {
+    "astro": "^7.3.3"
+  },
+  "private": true,
+  "description": "Public developer-facing site for kankaku and the kankaku hub.",
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/mdx": "^8.0.1",
+    "@astrojs/sitemap": "^3.7.4",
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "playwright": "^1.63.0",
+    "sharp": "^0.35.4",
+    "subset-font": "^2.9.0",
+    "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
