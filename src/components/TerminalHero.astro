@@ -16,10 +16,16 @@ const t = useTranslations(locale);
  */
 const LINES = [
   { prompt: true, text: "/kankaku" },
-  { prompt: false, text: "kankaku · today" },
-  { prompt: false, text: "orchestrator   work 41m12s  wait 3m40s  records 6   ~$0.82" },
-  { prompt: false, text: "subagent       work 18m05s  wait 0s     records 3   ~$0.31" },
-  { prompt: false, text: "tasks (union)  wall 44m52s  work 41m12s  wait 3m40s  ~$1.13" },
+  // Verbatim shape of kankaku's real report: `formatReport()` in
+  // kankaku/src/adapters/report.ts, split on " | " and titled
+  // "summary (today)" by kankaku-command.ts. Do not restyle it into columns:
+  // the site must never show output the tool does not produce. The figures
+  // are consistent with each other (costs add up; the task's wall time is the
+  // UNION of orchestrator and subagent time, so it is not their sum).
+  { prompt: false, text: "summary (today)" },
+  { prompt: false, text: "orchestrator: work 41m12s, waiting 3m40s, 6 record(s), $0.82" },
+  { prompt: false, text: "subagent: work 18m05s, waiting 0m00s, 3 record(s), $0.31" },
+  { prompt: false, text: "tasks: 6, wall 44m52s, work 41m12s, $1.13" },
   { prompt: true, text: "/kankaku sync" },
   { prompt: false, text: "uploaded 2, updated 1, skipped 4, failed 0" },
   { prompt: false, text: "synced through 2026-09-20T18:42:11.000Z" },
