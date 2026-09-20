@@ -1,0 +1,95 @@
+---
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+/**
+ * A realistic /kankaku session transcript. This is the FULL, final content
+ * — always present in the DOM (readable with JS off, and to crawlers/
+ * screen readers). The <script> below only replays it as a typing
+ * animation for sighted JS users who don't prefer reduced motion; it never
+ * removes or hides this content, only visually reveals it progressively.
+ */
+const LINES = [
+  { prompt: true, text: "/kankaku" },
+  { prompt: false, text: "kankaku · today" },
+  { prompt: false, text: "orchestrator   work 41m12s  wait 3m40s  records 6   ~$0.82" },
+  { prompt: false, text: "subagent       work 18m05s  wait 0s     records 3   ~$0.31" },
+  { prompt: false, text: "tasks (union)  wall 44m52s  work 41m12s  wait 3m40s  ~$1.13" },
+  { prompt: true, text: "/kankaku sync" },
+  { prompt: false, text: "uploaded 2, updated 1, skipped 4, failed 0" },
+  { prompt: false, text: "synced through 2026-09-20T18:42:11.000Z" },
+];
+---
+
+<div class="terminal-hero" data-terminal-hero aria-label={t("home.heroReplayHint")}>
+  <div class="terminal-hero__bar">
+    <span class="cmd-block__dots"><span></span><span></span><span></span></span>
+    <span class="cmd-block__label">pi — kankaku</span>
+  </div>
+  <pre class="terminal-hero__body" data-terminal-body>{LINES.map((l) => (l.prompt ? "$ " : "  ") + l.text).join("\n")}</pre>
+</div>
+<p class="visually-hidden" data-terminal-note>{t("home.heroReplayHint")}</p>
+
+<style>
+  .terminal-hero {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 20px 60px -30px oklch(0 0 0 / 0.5);
+  }
+  .terminal-hero__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    background: color-mix(in oklch, var(--card), var(--foreground) 3%);
+  }
+  .terminal-hero__body {
+    margin: 0;
+    padding: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    line-height: 1.7;
+    color: var(--foreground);
+    white-space: pre-wrap;
+    min-height: 15rem;
+  }
+</style>
+
+<script>
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!prefersReducedMotion) {
+    for (const el of document.querySelectorAll<HTMLElement>("[data-terminal-body]")) {
+      const full = el.textContent ?? "";
+      el.textContent = "";
+      el.setAttribute("aria-hidden", "true"); // the visually-hidden sibling note carries the accessible description; this avoids a screen reader reading text character-by-character as it types
+      let i = 0;
+      const step = () => {
+        i += Math.max(1, Math.round(full.length / 400));
+        el.textContent = full.slice(0, i);
+        if (i < full.length) {
+          requestAnimationFrame(step);
+        } else {
+          el.removeAttribute("aria-hidden"); // full transcript is back and equivalent to the no-JS content; safe to expose again
+        }
+      };
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            requestAnimationFrame(step);
+            io.disconnect();
+          }
+        },
+        { threshold: 0.3 },
+      );
+      io.observe(el);
+    }
+  }
+</script>

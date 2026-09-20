@@ -1,0 +1,69 @@
+---
+import { KANKAKU_ENV_VARS } from "../data/kankaku-commands";
+import esI18n from "../data/commands-i18n/es.json";
+import enI18n from "../data/commands-i18n/en.json";
+import jaI18n from "../data/commands-i18n/ja.json";
+import type { Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const i18n = { es: esI18n, en: enI18n, ja: jaI18n }[locale];
+---
+
+<div class="env-table-wrap">
+  <table class="env-table">
+    <thead>
+      <tr>
+        <th>{i18n.config.envColumns.name}</th>
+        <th>{i18n.config.envColumns.default}</th>
+        <th>{i18n.config.envColumns.meaning}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        KANKAKU_ENV_VARS.map((ev) => (
+          <tr>
+            <td><code>{ev.name}</code></td>
+            <td><code>{ev.default}</code></td>
+            <td>{i18n.config.env[ev.i18nKey as keyof typeof i18n.config.env]}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .env-table-wrap {
+    overflow-x: auto;
+    margin-block: 1rem;
+  }
+  .env-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    table-layout: fixed;
+  }
+  .env-table th,
+  .env-table td {
+    border: 1px solid var(--border);
+    padding: 0.45rem 0.65rem;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+  }
+  .env-table th:nth-child(1),
+  .env-table td:nth-child(1) {
+    width: 15rem;
+  }
+  .env-table th:nth-child(2),
+  .env-table td:nth-child(2) {
+    width: 11rem;
+  }
+  .env-table th {
+    background: var(--muted);
+    font-family: var(--font-mono);
+  }
+</style>

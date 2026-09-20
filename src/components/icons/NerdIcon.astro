@@ -1,0 +1,48 @@
+---
+/**
+ * Renders one self-hosted Nerd Font glyph. Keep ICONS in sync with
+ * scripts/build-font.mjs's ICONS map (that's what actually gets subsetted
+ * into public/fonts/) — an id missing there will render a blank tofu box.
+ */
+const ICONS = {
+  terminal: 0xf120,
+  github: 0xf09b,
+  folder: 0xf07b,
+  folderOpen: 0xf07c,
+  check: 0xf00c,
+  times: 0xf00d,
+  clock: 0xf017,
+  briefcase: 0xf0b1,
+  database: 0xf1c0,
+  lock: 0xf023,
+  globe: 0xf0ac,
+  bolt: 0xf0e7,
+  book: 0xf02d,
+  cog: 0xf013,
+  download: 0xf019,
+  warning: 0xf071,
+  info: 0xf05a,
+  rocket: 0xf135,
+  code: 0xf121,
+  shield: 0xf132,
+  refresh: 0xf021,
+  link: 0xf0c1,
+  gitBranch: 0xf418,
+  chevronRight: 0xf054,
+} as const;
+
+export type IconName = keyof typeof ICONS;
+
+interface Props {
+  name: IconName;
+  class?: string;
+  label?: string;
+}
+
+const { name, class: className, label } = Astro.props;
+const glyph = String.fromCodePoint(ICONS[name]);
+---
+
+<span class:list={["nerd-icon", className]} aria-hidden={label ? undefined : "true"} role={label ? "img" : undefined} aria-label={label}
+  >{glyph}</span
+>

@@ -1,0 +1,144 @@
+---
+import { COMMAND_GROUPS, KANKAKU_COMMANDS, type CommandGroup } from "../data/kankaku-commands";
+import esI18n from "../data/commands-i18n/es.json";
+import enI18n from "../data/commands-i18n/en.json";
+import jaI18n from "../data/commands-i18n/ja.json";
+import { useTranslations, type Locale } from "../i18n/utils";
+import CopyButton from "./CopyButton.astro";
+import NerdIcon from "./icons/NerdIcon.astro";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const i18n = { es: esI18n, en: enI18n, ja: jaI18n }[locale];
+---
+
+<div class="commands-table" data-commands-root>
+  <label class="commands-table__filter">
+    <NerdIcon name="code" />
+    <input type="search" placeholder={i18n.filterPlaceholder ?? "…"} data-commands-filter aria-label={i18n.filterPlaceholder ?? "Filter"} />
+  </label>
+
+  {
+    COMMAND_GROUPS.map((group: CommandGroup) => (
+      <section class="commands-group" data-commands-group>
+        <h2>{i18n.groups[group]}</h2>
+        <div class="commands-list">
+          {KANKAKU_COMMANDS.filter((c) => c.group === group).map((cmd) => {
+            const item = i18n.items[cmd.id as keyof typeof i18n.items];
+            const searchText = `${cmd.syntax} ${item?.description ?? ""}`.toLowerCase();
+            return (
+              <div class="commands-row" data-commands-item data-search={searchText}>
+                <code class="commands-row__syntax">{cmd.syntax}</code>
+                <span class="commands-row__desc">
+                  {item?.description}
+                  {cmd.requiresHub && (
+                    <span class="badge badge--hub">
+                      <NerdIcon name="database" /> {t("common.requiresHub")}
+                    </span>
+                  )}
+                </span>
+                <CopyButton text={cmd.syntax} locale={locale} />
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    ))
+  }
+
+  <p class="commands-empty" data-commands-empty hidden>{i18n.filterEmpty ?? ""}</p>
+</div>
+
+<style>
+  .commands-table__filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 1.25rem;
+    font-family: var(--font-mono);
+  }
+  .commands-table__filter input {
+    border: none;
+    background: transparent;
+    color: var(--foreground);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    width: 100%;
+    outline: none;
+  }
+  .commands-group h2 {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted-foreground);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .commands-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .commands-row {
+    display: grid;
+    grid-template-columns: minmax(11rem, auto) 1fr auto;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.5rem 0.25rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .commands-row__syntax {
+    background: var(--muted);
+    padding: 0.15rem 0.45rem;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    overflow-x: auto;
+  }
+  .commands-row__desc {
+    color: var(--muted-foreground);
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .commands-empty {
+    font-family: var(--font-mono);
+    color: var(--muted-foreground);
+    padding: 2rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .commands-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>("[data-commands-filter]");
+  const groups = Array.from(document.querySelectorAll<HTMLElement>("[data-commands-group]"));
+  const empty = document.querySelector<HTMLElement>("[data-commands-empty]");
+
+  input?.addEventListener("input", () => {
+    const q = input.value.trim().toLowerCase();
+    let anyVisible = false;
+    for (const group of groups) {
+      let groupHasVisible = false;
+      for (const item of group.querySelectorAll<HTMLElement>("[data-commands-item]")) {
+        const match = !q || (item.dataset.search ?? "").includes(q);
+        (item as HTMLElement).hidden = !match;
+        if (match) groupHasVisible = true;
+      }
+      group.hidden = !groupHasVisible;
+      if (groupHasVisible) anyVisible = true;
+    }
+    if (empty) empty.hidden = anyVisible;
+  });
+</script>

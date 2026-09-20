@@ -1,0 +1,64 @@
+---
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  text: string;
+  locale: Locale;
+}
+const { text, locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<button
+  type="button"
+  class="copy-btn"
+  data-copy-btn
+  data-copy-text={text}
+  data-copied-label={t("common.copied")}
+  aria-label={t("common.copyAria")}
+>
+  <span data-copy-label>{t("common.copy")}</span>
+</button>
+
+<script>
+  const COPIED_LABEL_ATTR = "data-copied-label";
+  const DEFAULT_LABEL_ATTR = "data-default-label";
+
+  document.addEventListener("click", async (event) => {
+    const btn = (event.target as HTMLElement)?.closest<HTMLButtonElement>("[data-copy-btn]");
+    if (!btn) return;
+    const text = btn.dataset.copyText || "";
+    const label = btn.querySelector<HTMLElement>("[data-copy-label]");
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Clipboard API unavailable (older browser, insecure context): select
+      // the text via a temporary textarea as a fallback so the user can
+      // still copy manually with the browser's own shortcut.
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+      } catch {
+        /* nothing more we can do */
+      }
+      document.body.removeChild(ta);
+    }
+    if (label && !btn.hasAttribute(DEFAULT_LABEL_ATTR)) {
+      btn.setAttribute(DEFAULT_LABEL_ATTR, label.textContent || "");
+    }
+    const copiedText = btn.getAttribute(COPIED_LABEL_ATTR);
+    if (label && copiedText) {
+      label.textContent = copiedText;
+      btn.dataset.copied = "true";
+      setTimeout(() => {
+        label.textContent = btn.getAttribute(DEFAULT_LABEL_ATTR) || label.textContent || "";
+        btn.dataset.copied = "false";
+      }, 1600);
+    }
+  });
+</script>

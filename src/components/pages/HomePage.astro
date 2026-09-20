@@ -1,0 +1,229 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import TerminalHero from "../TerminalHero.astro";
+import ScreenshotFigure from "../ScreenshotFigure.astro";
+import NerdIcon, { type IconName } from "../icons/NerdIcon.astro";
+import CopyButton from "../CopyButton.astro";
+import { localizePath, useTranslations, type Locale } from "../../i18n/utils";
+import { KANKAKU } from "../../consts";
+
+import dashboardDark from "../../assets/screenshots/dashboard-dark.png";
+import dashboardLight from "../../assets/screenshots/dashboard-light.png";
+import tasksDark from "../../assets/screenshots/tasks-dark.png";
+import clientsDark from "../../assets/screenshots/clients-dark.png";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+const steps = [
+  { icon: "download" as const, title: t("home.stepInstallTitle"), line: t("home.stepInstallLine") },
+  { icon: "code" as const, title: t("home.stepWorkTitle"), line: t("home.stepWorkLine") },
+  { icon: "terminal" as const, title: t("home.stepSeeTitle"), line: t("home.stepSeeLine") },
+];
+
+const features: { icon: IconName; title: string; line: string }[] = [
+  { icon: "code", title: t("home.feature1Title"), line: t("home.feature1Line") },
+  { icon: "link", title: t("home.feature2Title"), line: t("home.feature2Line") },
+  { icon: "shield", title: t("home.feature3Title"), line: t("home.feature3Line") },
+  { icon: "database", title: t("home.feature4Title"), line: t("home.feature4Line") },
+  { icon: "cog", title: t("home.feature5Title"), line: t("home.feature5Line") },
+  { icon: "download", title: t("home.feature6Title"), line: t("home.feature6Line") },
+];
+---
+
+<BaseLayout locale={locale} title={t("meta.tagline")} description={t("meta.tagline")}>
+  <!-- Hero -->
+  <section class="hero container">
+    <div class="hero__copy">
+      <p class="kicker">{t("home.heroKicker")}</p>
+      <h1>{t("home.heroLine")}</h1>
+      <div class="cmd-block hero__install">
+        <div class="cmd-block__bar">
+          <span class="cmd-block__dots"><span></span><span></span><span></span></span>
+          <span class="cmd-block__label">shell</span>
+          <CopyButton text={t("home.heroInstall")} locale={locale} />
+        </div>
+        <pre><code>{t("home.heroInstall").replace(/^\$ ?/, "")}</code></pre>
+      </div>
+      <div class="hero__ctas">
+        <a class="btn btn--primary" href={localizePath("/docs/guide", locale)}>
+          <NerdIcon name="rocket" /> {t("home.heroCtaDocs")}
+        </a>
+        <a class="btn btn--ghost" href={localizePath("/docs/commands", locale)}>
+          <NerdIcon name="terminal" /> {t("home.heroCtaCommands")}
+        </a>
+      </div>
+    </div>
+    <div class="hero__terminal">
+      <TerminalHero locale={locale} />
+    </div>
+  </section>
+
+  <!-- 3 steps -->
+  <section class="container section">
+    <div class="grid grid--3">
+      {
+        steps.map((s) => (
+          <div class="card step-card">
+            <NerdIcon name={s.icon} class="feature-card__icon" />
+            <h2 class="step-card__title">{s.title}</h2>
+            <p>{s.line}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Feature grid -->
+  <section class="container section">
+    <div class="grid grid--3">
+      {
+        features.map((f) => (
+          <div class="card feature-card">
+            <NerdIcon name={f.icon} class="feature-card__icon" />
+            <h2 class="feature-card__title">{f.title}</h2>
+            <p>{f.line}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Screenshots -->
+  <section class="container section">
+    <p class="section__lede">{t("home.screenshotsLine")}</p>
+    <div class="grid grid--2">
+      <ScreenshotFigure src={dashboardDark} alt="kankaku hub dashboard, dark theme" locale={locale} eager />
+      <ScreenshotFigure src={dashboardLight} alt="kankaku hub dashboard, light theme" locale={locale} />
+      <ScreenshotFigure src={tasksDark} alt="kankaku hub tasks list, dark theme" locale={locale} />
+      <ScreenshotFigure src={clientsDark} alt="kankaku hub clients list, dark theme" locale={locale} />
+    </div>
+  </section>
+
+  <!-- Privacy, 3 bullets -->
+  <section class="container section">
+    <ul class="privacy-bullets">
+      <li><NerdIcon name="lock" /> {t("home.privacyBullet1")}</li>
+      <li><NerdIcon name="shield" /> {t("home.privacyBullet2")}</li>
+      <li><NerdIcon name="database" /> {t("home.privacyBullet3")}</li>
+    </ul>
+  </section>
+
+  <!-- Status strip: one row, two states -->
+  <section class="container section">
+    <div class="status-strip">
+      <span class="status-strip__item">
+        <span class="badge badge--done"><NerdIcon name="check" /> {t("home.statusAvailableLabel")}</span> {t("home.statusAvailable")}
+      </span>
+      <span class="status-strip__item">
+        <span class="badge badge--soon"><NerdIcon name="warning" /> {t("home.statusSoonLabel")}</span> {t("home.statusSoon")}
+      </span>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section class="container section section--install">
+    <h2 class="section__title">{t("home.installTitle")}</h2>
+    <div class="cmd-block">
+      <div class="cmd-block__bar">
+        <span class="cmd-block__dots"><span></span><span></span><span></span></span>
+        <span class="cmd-block__label">shell</span>
+        <CopyButton text="pi install npm:kankaku" locale={locale} />
+      </div>
+      <pre><code>pi install npm:kankaku</code></pre>
+    </div>
+    <p class="section__lede">
+      <a href={KANKAKU.homepage}>{t("common.viewOnGithub")}</a> · {KANKAKU.repoShort}
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: center;
+    padding-block: 3rem 2rem;
+  }
+  .hero__copy h1 {
+    font-size: clamp(1.6rem, 3.4vw, 2.2rem);
+    line-height: 1.25;
+    margin: 0.5rem 0 1.25rem;
+  }
+  .hero__install {
+    max-width: 30rem;
+  }
+  .hero__ctas {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .section {
+    padding-block: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .section__title {
+    font-size: 1.3rem;
+    margin: 0 0 1rem;
+  }
+  .section__lede {
+    color: var(--muted-foreground);
+    max-width: 55ch;
+    margin-bottom: 1rem;
+  }
+  .feature-card__icon {
+    color: var(--primary);
+    font-size: 1.3rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .feature-card__title,
+  .step-card__title {
+    font-size: 1rem;
+    margin: 0 0 0.3rem;
+  }
+  .card p {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 0.92rem;
+  }
+  .privacy-bullets {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    max-width: 60ch;
+  }
+  .privacy-bullets li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .status-strip {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+  .status-strip__item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 860px) {
+    .hero {
+      grid-template-columns: 1fr;
+      padding-block: 2rem 1rem;
+    }
+  }
+</style>

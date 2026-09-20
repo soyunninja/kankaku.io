@@ -1,0 +1,52 @@
+---
+import { KANKAKU } from "../consts";
+import { useTranslations, type Locale } from "../i18n/utils";
+import NerdIcon from "./icons/NerdIcon.astro";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__row">
+    <span>{t("footer.license")}</span>
+    <a href={`https://www.npmjs.com/package/${KANKAKU.npmPackage}`}>{t("footer.npm")}</a>
+    <a href={KANKAKU.repo}><NerdIcon name="github" /> GitHub</a>
+    {locale === "ja" && <span class="site-footer__note">{t("footer.jaDisclaimer")}</span>}
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+    padding-block: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--muted-foreground);
+  }
+  .site-footer__row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .site-footer__row a {
+    color: var(--muted-foreground);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .site-footer__row a:hover {
+    color: var(--foreground);
+  }
+  .site-footer__note {
+    margin-left: auto;
+    /* No opacity dimming here: it would drop --muted-foreground's already
+       AA-tuned contrast below 4.5:1 (verified with axe-core). */
+  }
+</style>

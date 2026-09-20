@@ -1,0 +1,86 @@
+---
+import { LOCALES, LOCALE_LABELS } from "../consts";
+import { localizePath, stripLocale, useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+  currentPath: string;
+}
+const { locale, currentPath } = Astro.props;
+const t = useTranslations(locale);
+const bare = stripLocale(currentPath);
+const CODE: Record<Locale, string> = { es: "ES", en: "EN", ja: "JA" };
+---
+
+<details class="lang-switcher" data-lang-switcher>
+  <summary aria-label={t("lang.label")} title={t("lang.label")}>{CODE[locale]}</summary>
+  <div class="lang-switcher__menu" role="group" aria-label={t("lang.label")}>
+    {
+      LOCALES.map((l) => (
+        <a href={localizePath(bare, l)} aria-current={l === locale ? "page" : undefined} hreflang={l}>
+          {LOCALE_LABELS[l]}
+        </a>
+      ))
+    }
+  </div>
+</details>
+
+<style>
+  .lang-switcher {
+    position: relative;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+  .lang-switcher summary {
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--foreground);
+    font-weight: 600;
+  }
+  .lang-switcher summary::-webkit-details-marker {
+    display: none;
+  }
+  .lang-switcher__menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.35rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.3rem;
+    min-width: 7rem;
+    z-index: 10;
+  }
+  .lang-switcher__menu a {
+    color: var(--muted-foreground);
+    text-decoration: none;
+    padding: 0.35rem 0.5rem;
+    border-radius: var(--radius-sm);
+  }
+  .lang-switcher__menu a[aria-current="page"] {
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+</style>
+
+<script>
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    if (target.closest("[data-lang-switcher] a")) {
+      return; // let navigation happen
+    }
+    for (const details of document.querySelectorAll<HTMLDetailsElement>("[data-lang-switcher][open]")) {
+      if (!details.contains(target)) details.removeAttribute("open");
+    }
+  });
+</script>

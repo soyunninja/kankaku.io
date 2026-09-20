@@ -1,0 +1,102 @@
+---
+import { LOCALES, SITE_URL, KANKAKU } from "../consts";
+import { htmlLang, localizePath, stripLocale, useTranslations, type Locale } from "../i18n/utils";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import "../styles/terminal.css";
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  /** Defaults to the per-locale generated OG image. */
+  ogImage?: string;
+  noindex?: boolean;
+}
+
+const { locale, title, description, ogImage, noindex = false } = Astro.props;
+const t = useTranslations(locale);
+const currentPath = Astro.url.pathname;
+const bare = stripLocale(currentPath);
+const canonical = new URL(localizePath(bare, locale), SITE_URL).toString();
+const pageTitle = `${title} · ${t("meta.siteName")}`;
+const image = new URL(ogImage ?? `/og/${locale}.png`, SITE_URL).toString();
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "kankaku",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "macOS, Linux, Windows",
+  softwareVersion: KANKAKU.version,
+  url: SITE_URL,
+  downloadUrl: `https://www.npmjs.com/package/${KANKAKU.npmPackage}`,
+  codeRepository: KANKAKU.repo,
+  license: "https://opensource.org/licenses/MIT",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  description,
+};
+---
+
+<!doctype html>
+<html lang={htmlLang(locale)} dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+
+    {LOCALES.map((l) => (
+      <link rel="alternate" hreflang={htmlLang(l)} href={new URL(localizePath(bare, l), SITE_URL).toString()} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL(localizePath(bare, "es"), SITE_URL).toString()} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="kankaku" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:locale" content={htmlLang(locale)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="generator" content={Astro.generator} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <script is:inline>
+      // No-FOUC theme application: runs before first paint, before any CSS
+      // depending on [data-theme] is used for layout decisions. Mirrors
+      // ThemeToggle.astro's storage key/logic exactly.
+      (function () {
+        try {
+          var v = localStorage.getItem("kankaku-site-theme");
+          if (v === "dark" || v === "light") {
+            document.documentElement.setAttribute("data-theme", v);
+          }
+        } catch (e) {
+          /* private browsing / blocked storage: falls back to prefers-color-scheme */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">{t("skipLink")}</a>
+    <Header locale={locale} currentPath={currentPath} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>

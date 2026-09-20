@@ -1,0 +1,44 @@
+---
+import { Image } from "astro:assets";
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  locale: Locale;
+  width?: number;
+  eager?: boolean;
+}
+const { src, alt, locale, width = 1200, eager = false } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<figure class="screenshot">
+  {/* AVIF only: universally supported by current browsers; astro:assets in
+     this Astro version has no `fallbackFormat` prop for a <picture> pair. */}
+  <Image src={src} alt={alt} width={width} loading={eager ? "eager" : "lazy"} format="avif" />
+  <figcaption>{t("common.fictionalDataCaption")}</figcaption>
+</figure>
+
+<style>
+  .screenshot {
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--card);
+  }
+  .screenshot img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top;
+  }
+  .screenshot figcaption {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    border-top: 1px solid var(--border);
+  }
+</style>

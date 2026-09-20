@@ -1,0 +1,125 @@
+---
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<details class="theme-toggle" data-theme-toggle>
+  <summary aria-label={t("theme.label")} title={t("theme.label")}>
+    <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+  </summary>
+  <div class="theme-toggle__menu" role="group" aria-label={t("theme.label")}>
+    <button type="button" data-theme-value="light" aria-pressed="false">{t("theme.light")}</button>
+    <button type="button" data-theme-value="dark" aria-pressed="false">{t("theme.dark")}</button>
+    <button type="button" data-theme-value="system" aria-pressed="false">{t("theme.system")}</button>
+  </div>
+</details>
+
+<style>
+  .theme-toggle {
+    position: relative;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+  .theme-toggle summary {
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--foreground);
+  }
+  .theme-toggle summary::-webkit-details-marker {
+    display: none;
+  }
+  .theme-toggle__icon {
+    font-size: 1rem;
+  }
+  .theme-toggle__menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.35rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.3rem;
+    min-width: 6.5rem;
+    z-index: 10;
+  }
+  .theme-toggle__menu button {
+    background: transparent;
+    color: var(--muted-foreground);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.5rem;
+    text-align: left;
+    cursor: pointer;
+  }
+  .theme-toggle__menu button[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+</style>
+
+<script>
+  // Applies a theme choice to <html data-theme> and persists it. The
+  // no-FOUC initial application lives in a separate inline head script
+  // (BaseLayout.astro) that runs before first paint; this script only
+  // handles the interactive toggle afterwards.
+  const STORAGE_KEY = "kankaku-site-theme";
+
+  function apply(value: string) {
+    const root = document.documentElement;
+    if (value === "dark" || value === "light") {
+      root.setAttribute("data-theme", value);
+    } else {
+      root.removeAttribute("data-theme");
+    }
+    for (const toggle of document.querySelectorAll("[data-theme-toggle]")) {
+      for (const btn of toggle.querySelectorAll<HTMLButtonElement>("button[data-theme-value]")) {
+        btn.setAttribute("aria-pressed", String(btn.dataset.themeValue === value));
+      }
+    }
+  }
+
+  function current(): string {
+    try {
+      return localStorage.getItem(STORAGE_KEY) || "system";
+    } catch {
+      return "system";
+    }
+  }
+
+  apply(current());
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    const btn = target?.closest<HTMLButtonElement>("[data-theme-toggle] button[data-theme-value]");
+    if (btn) {
+      const value = btn.dataset.themeValue!;
+      try {
+        localStorage.setItem(STORAGE_KEY, value);
+      } catch {
+        /* private browsing / blocked storage: theme just won't persist */
+      }
+      apply(value);
+      btn.closest("details")?.removeAttribute("open");
+      return;
+    }
+    // Close the disclosure when clicking outside it.
+    for (const details of document.querySelectorAll<HTMLDetailsElement>("[data-theme-toggle][open]")) {
+      if (!details.contains(target)) details.removeAttribute("open");
+    }
+  });
+</script>
