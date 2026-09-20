@@ -1,0 +1,69 @@
+---
+title: Guía
+description: Instalar, tu primera sesión, ver tus números, conectar el hub, configuración.
+order: 1
+---
+
+import EnvTable from "../../../components/EnvTable.astro";
+import GuideToc from "../../../components/GuideToc.astro";
+
+<GuideToc
+  locale="es"
+  items={[
+    { id: "install", label: "Instalar" },
+    { id: "first-session", label: "Primera sesión" },
+    { id: "numbers", label: "Tus números" },
+    { id: "hub", label: "Conectar el hub" },
+    { id: "settings", label: "Configuración" },
+    { id: "notes", label: "Bueno saberlo" },
+  ]}
+/>
+
+<h2 id="install">Instalar</h2>
+
+```
+pi install npm:kankaku
+```
+
+También: `pi install git:github.com/soyunninja/kankaku` (añade `@v0.4.6` para fijar versión), o `pi install /ruta/local` sin copiar. Probar sin instalar: `pi -e /ruta/local`.
+
+<h2 id="first-session">Tu primera sesión</h2>
+
+No actives nada — kankaku mide desde el siguiente prompt. Si tienes un hub, al abrir un proyecto nuevo te pregunta el cliente y el proyecto; puedes saltarlo, y si dices que sí a recordarlo, no vuelve a preguntar.
+
+<h2 id="numbers">Tus números</h2>
+
+```
+/kankaku            # resumen de hoy
+/kankaku tasks      # una línea por tarea
+/kankaku sync       # sube lo pendiente al hub
+/kankaku export     # csv o json
+```
+
+<h2 id="hub">Conectar el hub (opcional)</h2>
+
+```
+export KANKAKU_PB_URL="https://tu-hub.example"
+export KANKAKU_PB_EMAIL="service@tu-hub.example"
+export KANKAKU_PB_PASSWORD="…"
+```
+
+Usa una cuenta de servicio, nunca la tuya. Sin esto, kankaku funciona igual — el cliente queda como texto libre.
+
+<h2 id="settings">Configuración</h2>
+
+<EnvTable locale="es" />
+
+<h2 id="notes">Bueno saberlo</h2>
+
+- El prompt nunca sale de tu máquina salvo que lo actives.
+- Un subagente en paralelo no duplica el tiempo.
+- Un corte no borra nada — queda marcado como interrumpido.
+- kankaku estima el coste; nunca factura.
+- `/kankaku doctor` diagnostica sin tocar la red.
+
+| Medida | Qué es |
+|---|---|
+| tiempo de trabajo | lo que trabajó de verdad |
+| tiempo de espera | lo que te esperó a ti |
+| wall-clock time | el total, de principio a fin |

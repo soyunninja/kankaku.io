@@ -1,0 +1,69 @@
+---
+title: Guide
+description: Install, your first session, see your numbers, connect the hub, settings.
+order: 1
+---
+
+import EnvTable from "../../../components/EnvTable.astro";
+import GuideToc from "../../../components/GuideToc.astro";
+
+<GuideToc
+  locale="en"
+  items={[
+    { id: "install", label: "Install" },
+    { id: "first-session", label: "First session" },
+    { id: "numbers", label: "Your numbers" },
+    { id: "hub", label: "Connect the hub" },
+    { id: "settings", label: "Settings" },
+    { id: "notes", label: "Good to know" },
+  ]}
+/>
+
+<h2 id="install">Install</h2>
+
+```
+pi install npm:kankaku
+```
+
+Also: `pi install git:github.com/soyunninja/kankaku` (add `@v0.4.6` to pin), or `pi install /local/path`, no copy. Try without installing: `pi -e /local/path`.
+
+<h2 id="first-session">Your first session</h2>
+
+Nothing to turn on — kankaku measures from the next prompt. With a hub, opening a new project asks for the client and project; you can skip it, and saying yes to remembering means it won't ask again.
+
+<h2 id="numbers">Your numbers</h2>
+
+```
+/kankaku            # today's summary
+/kankaku tasks      # one line per task
+/kankaku sync       # push what's pending to the hub
+/kankaku export     # csv or json
+```
+
+<h2 id="hub">Connect the hub (optional)</h2>
+
+```
+export KANKAKU_PB_URL="https://your-hub.example"
+export KANKAKU_PB_EMAIL="service@your-hub.example"
+export KANKAKU_PB_PASSWORD="…"
+```
+
+Use a service account, never your own. Without this, kankaku still works — the client is just free text.
+
+<h2 id="settings">Settings</h2>
+
+<EnvTable locale="en" />
+
+<h2 id="notes">Good to know</h2>
+
+- Prompt text never leaves your machine unless you turn it on.
+- A subagent running in parallel never doubles the time.
+- A crash doesn't erase anything — it's marked interrupted.
+- kankaku estimates cost; it never invoices.
+- `/kankaku doctor` diagnoses without touching the network.
+
+| Metric | What it is |
+|---|---|
+| work time | what it actually worked |
+| waiting time | what it waited on you |
+| wall-clock time | the total, start to finish |

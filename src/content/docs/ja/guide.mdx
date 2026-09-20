@@ -1,0 +1,69 @@
+---
+title: ガイド
+description: インストール、最初のセッション、数値の見方、Hub接続、設定。
+order: 1
+---
+
+import EnvTable from "../../../components/EnvTable.astro";
+import GuideToc from "../../../components/GuideToc.astro";
+
+<GuideToc
+  locale="ja"
+  items={[
+    { id: "install", label: "インストール" },
+    { id: "first-session", label: "最初のセッション" },
+    { id: "numbers", label: "数値の見方" },
+    { id: "hub", label: "Hubに接続" },
+    { id: "settings", label: "設定" },
+    { id: "notes", label: "知っておきたいこと" },
+  ]}
+/>
+
+<h2 id="install">インストール</h2>
+
+```
+pi install npm:kankaku
+```
+
+他の方法: `pi install git:github.com/soyunninja/kankaku`（`@v0.4.6`でバージョン固定）、または`pi install /ローカルパス`（コピーなし）。試すだけなら: `pi -e /ローカルパス`。
+
+<h2 id="first-session">最初のセッション</h2>
+
+何も有効化する必要はありません。次のプロンプトから測定が始まります。Hubがある場合、新しいプロジェクトを開くとクライアントとプロジェクトを聞かれます。スキップも可能で、「記憶する」を選べば次からは聞かれません。
+
+<h2 id="numbers">数値の見方</h2>
+
+```
+/kankaku            # 今日の要約
+/kankaku tasks      # タスクごとに1行
+/kankaku sync       # 保留分をHubへ送信
+/kankaku export     # csvまたはjson
+```
+
+<h2 id="hub">Hubに接続（任意）</h2>
+
+```
+export KANKAKU_PB_URL="https://your-hub.example"
+export KANKAKU_PB_EMAIL="service@your-hub.example"
+export KANKAKU_PB_PASSWORD="…"
+```
+
+サービスアカウントを使い、自分のアカウントは使わないでください。接続しなくてもkankakuは動作します — クライアントが自由記述になるだけです。
+
+<h2 id="settings">設定</h2>
+
+<EnvTable locale="ja" />
+
+<h2 id="notes">知っておきたいこと</h2>
+
+- 有効化しない限り、プロンプトはマシンの外に出ません。
+- 並行して動くサブエージェントがあっても時間は二重になりません。
+- クラッシュしても何も消えません — 「中断」として記録されます。
+- kankakuはコストを推定するだけで、請求はしません。
+- `/kankaku doctor`は通信せずに診断します。
+
+| 指標 | 内容 |
+|---|---|
+| 作業時間 | 実際に作業した時間 |
+| 待機時間 | あなたを待っていた時間 |
+| wall-clock time | 開始から終了までの合計 |

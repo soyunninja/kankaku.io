@@ -1,0 +1,37 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { useTranslations, localizePath } from "../i18n/utils";
+import NerdIcon from "../components/icons/NerdIcon.astro";
+
+const locale = "es" as const;
+const t = useTranslations(locale);
+---
+
+<BaseLayout locale={locale} title={t("notFound.title")} description={t("notFound.body")} noindex>
+  <div class="container not-found">
+    <p class="kicker">{t("notFound.kicker")}</p>
+    <h1 class="prompt-heading" data-prompt="$">{t("notFound.title")}</h1>
+    <p>{t("notFound.body")}</p>
+    <div class="not-found__actions">
+      <a class="btn btn--primary" href={localizePath("/", locale)}><NerdIcon name="terminal" /> {t("notFound.backHome")}</a>
+      <a class="btn btn--ghost" href={localizePath("/docs/guide", locale)}><NerdIcon name="book" /> {t("notFound.tryDocs")}</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .not-found {
+    padding-block: 5rem;
+    text-align: left;
+  }
+  .not-found h1 {
+    font-size: 2rem;
+    margin: 0.5rem 0 1rem;
+  }
+  .not-found__actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+</style>
