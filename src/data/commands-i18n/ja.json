@@ -20,6 +20,7 @@
       "interactiveTools": "実行時間が待機時間としてカウントされるツール名を、カンマ区切りで指定するリストです。",
       "segments": "タグ付きセグメント用の「tag=tool:regex」ルールを「;」区切りで指定します（デフォルトは「review」ルール1件のみ）。",
       "client": "このプロジェクトのデフォルトの請求先クライアントです。「/kankaku client」より優先度は低く、プロジェクトの「config.json」より優先度は高くなります。",
+      "role": "1回の実行だけロールを上書きします（「orchestrator」/「subagent」）。グローバルにはエクスポートせず、`KANKAKU_ROLE=orchestrator pi …` のように限定してください。",
       "pbUrl": "PocketBaseハブのURLです。localhost/127.0.0.1/::1を指す場合を除き、HTTPSである必要があります。",
       "pbEmail": "ハブのサービスアカウントのメールアドレスです。",
       "pbPassword": "ハブのサービスアカウントのパスワードです。",

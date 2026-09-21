@@ -20,6 +20,7 @@
       "interactiveTools": "Lista de nombres de herramientas, separados por comas, cuya ejecución cuenta como tiempo de espera.",
       "segments": "Reglas «tag=tool:regex» separadas por «;» para segmentos etiquetados (por defecto, la única regla «review»).",
       "client": "Cliente de facturación por defecto para este proyecto; menor precedencia que «/kankaku client», mayor que el «config.json» del proyecto.",
+      "role": "Fuerza el rol («orchestrator»/«subagent») solo para una invocación — nunca lo exportes globalmente: `KANKAKU_ROLE=orchestrator pi …`.",
       "pbUrl": "URL del hub PocketBase. Debe ser HTTPS salvo que apunte a localhost/127.0.0.1/::1.",
       "pbEmail": "Email de la cuenta de servicio del hub.",
       "pbPassword": "Contraseña de la cuenta de servicio del hub.",

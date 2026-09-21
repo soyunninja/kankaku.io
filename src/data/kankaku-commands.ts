@@ -66,6 +66,7 @@ export const KANKAKU_ENV_VARS: KankakuEnvVarDef[] = [
   { name: "KANKAKU_INTERACTIVE_TOOLS", default: "ask_user_question,ask_user_choice", i18nKey: "interactiveTools" },
   { name: "KANKAKU_SEGMENTS", default: "review=bash:\\bgentle-ai review\\b", i18nKey: "segments" },
   { name: "KANKAKU_CLIENT", default: "(unset)", i18nKey: "client" },
+  { name: "KANKAKU_ROLE", default: "(unset)", i18nKey: "role" },
   { name: "KANKAKU_PB_URL", default: "(unset)", i18nKey: "pbUrl" },
   { name: "KANKAKU_PB_EMAIL", default: "(unset)", i18nKey: "pbEmail" },
   { name: "KANKAKU_PB_PASSWORD", default: "(unset)", i18nKey: "pbPassword" },

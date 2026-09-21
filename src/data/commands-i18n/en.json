@@ -20,6 +20,7 @@
       "interactiveTools": "Comma-separated list of tool names whose execution span counts as waiting time.",
       "segments": "\";\"-separated \"tag=tool:regex\" rules for tagged segments (defaults to the single \"review\" rule).",
       "client": "Default billing client for this project; lower precedence than \"/kankaku client\", higher than the project's \"config.json\".",
+      "role": "Overrides role detection (\"orchestrator\"/\"subagent\") for one invocation only — never export it globally: `KANKAKU_ROLE=orchestrator pi …`.",
       "pbUrl": "PocketBase hub URL. Must be HTTPS unless it points at localhost/127.0.0.1/::1.",
       "pbEmail": "Hub service-account email.",
       "pbPassword": "Hub service-account password.",
