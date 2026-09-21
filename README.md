@@ -46,6 +46,12 @@ pnpm run test:a11y        # axe-core, every page, light + dark
 
 `pnpm run check` runs `astro check` (TypeScript).
 
+The Playwright suites build the site and serve `dist/` themselves with
+`scripts/serve-dist.mjs` on port 4399 (`SITE_TEST_PORT` to change it). They do
+not use `astro preview`: Astro will not start a second server for this project
+while `pnpm dev` is open, and testing against a dev server would test the dev
+toolbar rather than the build. You can keep `pnpm dev` running while they run.
+
 ## Adding a page
 
 There are exactly three pages per locale: Home, **Guide**
