@@ -288,17 +288,19 @@ const features: { icon: IconName; title: string; line: string }[] = [
     gap: 0.75rem;
     will-change: transform;
   }
+  /* Each slot is exactly as wide as its capture (height-driven), so the
+     gap between captures is the real gap. */
   .gallery__item {
-    flex: 0 0 min(76vw, 1080px);
+    flex: 0 0 auto;
   }
   .gallery__item :global(.screenshot) {
     display: flex;
     justify-content: center;
   }
   .gallery__item :global(.screenshot img) {
-    width: 100%;
-    height: auto;
-    max-height: 68vh;
+    height: 68vh;
+    width: auto;
+    max-width: 86vw;
     object-fit: contain;
     /* The captures are macOS window shots: a 25px (3%) black band above
        the window and a hairline of frame around it. Clip it away so the
@@ -318,6 +320,7 @@ const features: { icon: IconName; title: string; line: string }[] = [
     }
     .gallery__track { transform: none !important; padding-inline: 7vw; gap: 1rem; }
     .gallery__item { flex-basis: 86vw; scroll-snap-align: center; }
+    .gallery__item :global(.screenshot img) { height: auto; width: 100%; max-width: none; }
   }
 </style>
 
