@@ -19,18 +19,8 @@ const { src, alt, locale, width = 1200, eager = false } = Astro.props;
 </figure>
 
 <style>
-  .screenshot {
-    margin: 0;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    background: var(--card);
-  }
-  /* Natural height: every capture shares the same window size, so no
-     aspect-ratio crop is needed and nothing gets cut off. */
-  .screenshot img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
+  /* Unopinionated: the surrounding layout (the home gallery) decides
+     borders, backgrounds and sizing. */
+  .screenshot { margin: 0; }
+  .screenshot img { display: block; width: 100%; height: auto; }
 </style>

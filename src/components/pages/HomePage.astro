@@ -263,8 +263,9 @@ const features: { icon: IconName; title: string; line: string }[] = [
   }
   .gallery {
     --header: 3.5rem;
-    --pin: calc(100vh - var(--header) - env(safe-area-inset-top, 0px));
-    height: calc((var(--n) - 1) * 70vh + var(--pin));
+    /* Pinned box: 70% of the viewport, capped by what fits under the header. */
+    --pin: min(70vh, calc(100vh - var(--header) - env(safe-area-inset-top, 0px)));
+    height: calc((var(--n) - 1) * 60vh + var(--pin));
   }
   .gallery__sticky {
     position: sticky;
@@ -281,21 +282,21 @@ const features: { icon: IconName; title: string; line: string }[] = [
     will-change: transform;
   }
   .gallery__item {
-    flex: 0 0 min(86vw, 1240px);
+    flex: 0 0 min(76vw, 1080px);
   }
   .gallery__item :global(.screenshot) {
     display: flex;
     justify-content: center;
-    background: transparent;
-    border: 0;
   }
   .gallery__item :global(.screenshot img) {
     width: 100%;
     height: auto;
-    max-height: calc(var(--pin) - 3rem);
+    max-height: calc(var(--pin) - 2rem);
     object-fit: contain;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    /* The captures are macOS window shots: a 25px (3%) black band above
+       the window and a hairline of frame around it. Clip it away so the
+       app fills its slot edge to edge on both grounds. */
+    clip-path: inset(3.1% 0.3% 0.4% 0.3%);
   }
   /* Fallback: plain horizontal strip (phones, reduced motion, no JS). */
   @media (max-width: 700px), (prefers-reduced-motion: reduce) {
