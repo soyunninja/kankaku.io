@@ -46,15 +46,18 @@ const t = useTranslations(locale);
   .site-footer__row + .site-footer__row {
     margin-top: 0.5rem;
   }
+  /* Footer links follow the site's link style (brand pink, underlined)
+     instead of the muted, undecorated look they had before. */
   .site-footer__row a {
-    color: var(--muted-foreground);
-    text-decoration: none;
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
   }
   .site-footer__row a:hover {
-    color: var(--foreground);
+    text-decoration-thickness: 2px;
   }
   .site-footer__note {
     margin-left: auto;
