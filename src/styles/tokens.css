@@ -1,8 +1,10 @@
 /*
  * Design tokens ported from kankaku-hub's web app
  * (web/app/assets/css/tailwind.css) as plain CSS custom properties, so the
- * public site shares the same identity (dark-by-default neutral scale +
- * single teal accent) without depending on the app's Tailwind build.
+ * public site shares the same identity without depending on the app's
+ * Tailwind build: neutral greys with the Gentleman-Sexy pink (#F43888) as
+ * brand accent in light mode, and the gentle-pi "Gentleman-Cute" theme
+ * (themes/Gentleman-Cute.json) in dark mode.
  *
  * Theme resolution: an explicit choice ("dark"/"light") is stored in
  * localStorage and stamped on <html data-theme="...">; the default
@@ -10,6 +12,30 @@
  * is defined on bare :root (light values), then overridden once under
  * prefers-color-scheme (guarded to yield to an explicit light choice) and
  * once under [data-theme="dark"], so the toggle wins in both directions.
+ *
+ * Every pair below was re-verified against the site's own stricter
+ * threshold (WCAG AA 4.5:1, not just the app's large-text 3:1) with a
+ * throwaway oklch/hex -> linear sRGB -> luminance script; both the app's
+ * light and dark values already clear it as ported, so no further
+ * site-specific darkening was needed this time (unlike the old teal
+ * palette, where muted-foreground and primary needed it — see the
+ * per-line comments below for what each value inherited from the app):
+ *   light  foreground/background        19.79:1
+ *   light  muted-foreground/background   6.00:1
+ *   light  muted-foreground/card-bar 3%   5.57:1
+ *   light  primary-foreground/primary     4.58:1
+ *   light  accent-foreground/accent       5.13:1
+ *   light  success-foreground/success     4.68:1
+ *   light  destructive-foreground/destructive 4.63:1
+ *   light  warning-foreground/warning     8.00:1
+ *   dark   foreground/background        18.07:1
+ *   dark   muted-foreground/background   6.79:1
+ *   dark   muted-foreground/card-bar 3%   6.28:1
+ *   dark   primary-foreground/primary     9.58:1
+ *   dark   accent-foreground/accent     10.52:1
+ *   dark   success-foreground/success   14.79:1
+ *   dark   destructive-foreground/destructive 7.79:1
+ *   dark   warning-foreground/warning   11.52:1
  */
 
 :root {
@@ -29,85 +55,76 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  /* Darkened from the app's oklch(0.55 0.11 192) to clear WCAG AA 4.5:1
-     against white — the app's own value sits at ~4.48:1 (verified with
-     axe-core), just under threshold for normal-weight text/icons. */
-  --primary: #007d80;
-  --primary-foreground: oklch(0.98 0.01 192);
+  --primary: oklch(0.580 0.228 1); /* #F43888 accent, lowered from L 0.650 so the theme white (L 0.98) reaches ~4.6:1 (#DA1272) — already 4.58:1 on the site's own check, no further darkening needed */
+  --primary-foreground: oklch(0.98 0 0); /* theme white on the lowered pink: ~4.6:1; on #F43888 itself it is ~3.5:1 */
   --secondary: oklch(0.96 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.96 0 0);
-  /* Darkened from the app's oklch(0.5 0 0) (~4.29:1 on white) to clear
-     WCAG AA 4.5:1 for small muted text against both pure white and the
-     ~3%-mixed card-bar background (e.g. .cmd-block__bar, footer notes). */
-  --muted-foreground: #707070;
-  --accent: oklch(0.94 0.03 192);
-  --accent-foreground: oklch(0.2 0.05 192);
-  --destructive: oklch(0.577 0.245 27.325);
+  --muted-foreground: oklch(0.5 0 0); /* matches the app's value directly: 6.00:1 on white and 5.57:1 on the ~3%-mixed card-bar, both above the site's 4.5:1 floor, so unlike the old teal palette this needs no extra site-side darkening */
+  --accent: oklch(0.94 0.03 1); /* light pink tint at the accent hue */
+  --accent-foreground: oklch(0.519 0.201 9); /* #BF0F50 deepPink */
+  --destructive: oklch(0.567 0.245 27.325); /* lowered for AA, was oklch(0.577 0.245 27.325) */
   --destructive-foreground: oklch(0.98 0 0);
-  /* Darkened from the app's oklch(0.6 0.14 150) for the same reason (see
-     --primary above): the badge/success pairing needs 4.5:1 and the
-     original sat at 3.48:1. */
-  --success: #207e4f;
+  --success: oklch(0.53 0.14 150); /* lowered for AA, was oklch(0.6 0.14 150) */
   --success-foreground: oklch(0.98 0 0);
   --warning: oklch(0.75 0.15 80);
   --warning-foreground: oklch(0.2 0 0);
   --border: oklch(0.9 0 0);
   --input: oklch(0.9 0 0);
-  --ring: #007d80;
+  --ring: oklch(0.580 0.228 1); /* same lowered pink as --primary */
   --shadow-color: 0 0% 0%;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.97 0 0);
-    --card: oklch(0.18 0 0);
-    --card-foreground: oklch(0.97 0 0);
-    --popover: oklch(0.19 0 0);
-    --popover-foreground: oklch(0.97 0 0);
-    --primary: oklch(0.72 0.13 192);
-    --primary-foreground: oklch(0.145 0.02 192);
-    --secondary: oklch(0.26 0 0);
-    --secondary-foreground: oklch(0.97 0 0);
-    --muted: oklch(0.24 0 0);
-    --muted-foreground: oklch(0.68 0 0);
-    --accent: oklch(0.28 0.05 192);
-    --accent-foreground: oklch(0.9 0.05 192);
-    --destructive: oklch(0.65 0.22 27);
-    --destructive-foreground: oklch(0.97 0 0);
-    --success: oklch(0.68 0.15 150);
-    --success-foreground: oklch(0.12 0 0);
-    --warning: oklch(0.8 0.16 85);
-    --warning-foreground: oklch(0.12 0 0);
-    --border: oklch(1 0 0 / 12%);
-    --input: oklch(1 0 0 / 16%);
-    --ring: oklch(0.72 0.13 192);
+    --background: oklch(0.113 0.011 316); /* #060407 bg */
+    --foreground: oklch(0.959 0.009 342); /* #F6EFF3 text */
+    --card: oklch(0.155 0.014 332); /* #100A0F bgPanel */
+    --card-foreground: oklch(0.959 0.009 342); /* #F6EFF3 text */
+    --popover: oklch(0.190 0.007 315); /* #151316 toolSuccessBg */
+    --popover-foreground: oklch(0.959 0.009 342); /* #F6EFF3 text */
+    --primary: oklch(0.778 0.125 346); /* #F095C8 accent */
+    --primary-foreground: oklch(0.113 0.011 316); /* #060407 bg */
+    --secondary: oklch(0.229 0.026 332); /* #241822 secondary */
+    --secondary-foreground: oklch(0.959 0.009 342); /* #F6EFF3 text */
+    --muted: oklch(0.195 0.017 335); /* #1A1218 muted (bg) */
+    --muted-foreground: oklch(0.673 0.035 345); /* #A78E9B muted (text) */
+    --accent: oklch(0.219 0.041 347); /* #28121E selection */
+    --accent-foreground: oklch(0.847 0.106 345); /* #FFB1DD activePink */
+    --destructive: oklch(0.727 0.174 9.4); /* #FF718F error */
+    --destructive-foreground: oklch(0.113 0.011 316); /* #060407 bg */
+    --success: oklch(0.884 0.068 157); /* #B4E7C7 mint */
+    --success-foreground: oklch(0.113 0.011 316); /* #060407 bg */
+    --warning: oklch(0.820 0.114 72); /* #F2B86D peach */
+    --warning-foreground: oklch(0.113 0.011 316); /* #060407 bg */
+    --border: oklch(0.362 0.060 354 / 55%); /* #563040 border */
+    --input: oklch(0.362 0.060 354 / 75%); /* #563040 border */
+    --ring: oklch(0.778 0.125 346); /* #F095C8 accent */
   }
 }
 
 :root[data-theme="dark"] {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.18 0 0);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.19 0 0);
-  --popover-foreground: oklch(0.97 0 0);
-  --primary: oklch(0.72 0.13 192);
-  --primary-foreground: oklch(0.145 0.02 192);
-  --secondary: oklch(0.26 0 0);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.24 0 0);
-  --muted-foreground: oklch(0.68 0 0);
-  --accent: oklch(0.28 0.05 192);
-  --accent-foreground: oklch(0.9 0.05 192);
-  --destructive: oklch(0.65 0.22 27);
-  --destructive-foreground: oklch(0.97 0 0);
-  --success: oklch(0.68 0.15 150);
-  --success-foreground: oklch(0.12 0 0);
-  --warning: oklch(0.8 0.16 85);
-  --warning-foreground: oklch(0.12 0 0);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.72 0.13 192);
+  --background: oklch(0.113 0.011 316); /* #060407 bg */
+  --foreground: oklch(0.959 0.009 342); /* #F6EFF3 text */
+  --card: oklch(0.155 0.014 332); /* #100A0F bgPanel */
+  --card-foreground: oklch(0.959 0.009 342); /* #F6EFF3 text */
+  --popover: oklch(0.190 0.007 315); /* #151316 toolSuccessBg */
+  --popover-foreground: oklch(0.959 0.009 342); /* #F6EFF3 text */
+  --primary: oklch(0.778 0.125 346); /* #F095C8 accent */
+  --primary-foreground: oklch(0.113 0.011 316); /* #060407 bg */
+  --secondary: oklch(0.229 0.026 332); /* #241822 secondary */
+  --secondary-foreground: oklch(0.959 0.009 342); /* #F6EFF3 text */
+  --muted: oklch(0.195 0.017 335); /* #1A1218 muted (bg) */
+  --muted-foreground: oklch(0.673 0.035 345); /* #A78E9B muted (text) */
+  --accent: oklch(0.219 0.041 347); /* #28121E selection */
+  --accent-foreground: oklch(0.847 0.106 345); /* #FFB1DD activePink */
+  --destructive: oklch(0.727 0.174 9.4); /* #FF718F error */
+  --destructive-foreground: oklch(0.113 0.011 316); /* #060407 bg */
+  --success: oklch(0.884 0.068 157); /* #B4E7C7 mint */
+  --success-foreground: oklch(0.113 0.011 316); /* #060407 bg */
+  --warning: oklch(0.820 0.114 72); /* #F2B86D peach */
+  --warning-foreground: oklch(0.113 0.011 316); /* #060407 bg */
+  --border: oklch(0.362 0.060 354 / 55%); /* #563040 border */
+  --input: oklch(0.362 0.060 354 / 75%); /* #563040 border */
+  --ring: oklch(0.778 0.125 346); /* #F095C8 accent */
 }
