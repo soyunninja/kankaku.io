@@ -1,6 +1,6 @@
 ---
 title: ガイド
-description: インストール、最初のセッション、数値の見方、Hub接続、設定。
+description: インストール、最初のセッション、数値の見方、Hub接続、サブエージェント、設定。
 order: 1
 ---
 
@@ -14,6 +14,7 @@ import GuideToc from "../../../components/GuideToc.astro";
     { id: "first-session", label: "最初のセッション" },
     { id: "numbers", label: "数値の見方" },
     { id: "hub", label: "Hubに接続" },
+    { id: "subagents", label: "サブエージェント" },
     { id: "settings", label: "設定" },
     { id: "notes", label: "知っておきたいこと" },
   ]}
@@ -51,6 +52,18 @@ export KANKAKU_PB_PASSWORD="…"
 サービスアカウントを使い、自分のアカウントは使わないでください。接続しなくてもkankakuは動作します — クライアントが自由記述になるだけです。
 
 **Engramと連携。** HubにEngramが設定されていれば、各セッションが目的とやったことの要約付きで届き、時間とコストの横に表示されます。Hubサーバーの `KANKAKU_ENGRAM_URL` で有効にします。Engramがなくても、Hubの見た目は変わりません。
+
+<h2 id="subagents">サブエージェントとgentle-ai</h2>
+
+kankakuにgentle-aiは不要です。基本はpi自体のイベントから得られます — 作業と待機、トークン、コスト、モデル、クラッシュ復旧、Hub同期。
+
+仕組みが重要になるのはサブエージェントです。
+
+- **gentle-pi**と**pi-subagents**は子プロセスにマークを付けます。kankakuはコストも含めて確実にオーケストレーターへ結び付けます。
+- **piのサブエージェント例**は何もマークしません。kankakuはプロセスの系譜で結び付け、プロセスの識別情報を確認します。
+- 他の仕組みを使う場合は `KANKAKU_SUBAGENT_TOOLS` と `KANKAKU_SUBAGENT_CHILD_ENV` で宣言してください。宣言がなければ、検出した子プロセスは「不確実」のままです — 時間は別集計され、新しいタスクとしては数えられません。
+
+`review`タグは`gentle-ai review`用にあらかじめ用意されています。使わなければ表示されません。`KANKAKU_SEGMENTS`で変更できます。
 
 <h2 id="settings">設定</h2>
 

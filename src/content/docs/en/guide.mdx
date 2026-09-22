@@ -1,6 +1,6 @@
 ---
 title: Guide
-description: Install, your first session, see your numbers, connect the hub, settings.
+description: Install, your first session, see your numbers, connect the hub, subagents, settings.
 order: 1
 ---
 
@@ -14,6 +14,7 @@ import GuideToc from "../../../components/GuideToc.astro";
     { id: "first-session", label: "First session" },
     { id: "numbers", label: "Your numbers" },
     { id: "hub", label: "Connect the hub" },
+    { id: "subagents", label: "Subagents" },
     { id: "settings", label: "Settings" },
     { id: "notes", label: "Good to know" },
   ]}
@@ -51,6 +52,18 @@ export KANKAKU_PB_PASSWORD="…"
 Use a service account, never your own. Without this, kankaku still works — the client is just free text.
 
 **With Engram.** If the hub has Engram configured, each session arrives with its goal and a summary of what got done, next to time and cost. Enable it with `KANKAKU_ENGRAM_URL` on the hub server. Without Engram, the hub looks exactly the same.
+
+<h2 id="subagents">Subagents and gentle-ai</h2>
+
+kankaku doesn't need gentle-ai. The essentials come from pi's own events: work vs. waiting, tokens, cost, model, crash recovery, and hub sync.
+
+Where the mechanism does matter is subagents:
+
+- **gentle-pi** and **pi-subagents** mark their children. kankaku joins them to their orchestrator with certainty, cost included.
+- The **pi subagents example** marks nothing. kankaku joins it by process ancestry, checking process identity.
+- Another mechanism: declare it with `KANKAKU_SUBAGENT_TOOLS` and `KANKAKU_SUBAGENT_CHILD_ENV`. Otherwise a detected child stays uncertain: its time is reported separately and never counted as a new task.
+
+The `review` tag comes ready for `gentle-ai review`. If you don't use it, it never shows up. Change it with `KANKAKU_SEGMENTS`.
 
 <h2 id="settings">Settings</h2>
 
