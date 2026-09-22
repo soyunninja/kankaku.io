@@ -1,6 +1,6 @@
 /** Site-wide constants that are not per-locale strings (those live in src/i18n/). */
 
-export const SITE_URL = process.env.SITE_URL || "https://kankaku.example";
+export const SITE_URL = process.env.SITE_URL || "https://kankaku.io";
 export const SITE_NAME = "kankaku";
 
 /** kankaku (the pi extension) facts — keep in sync with the kankaku repo. Never invent numbers here. */

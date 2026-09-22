@@ -3,9 +3,9 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import mdx from "@astrojs/mdx";
 
-// The production origin is unknown yet (see site/README.md "Before going
-// public") — SITE_URL is the single place that changes once one exists.
-const SITE_URL = process.env.SITE_URL || "https://kankaku.example";
+// Production origin: https://kankaku.io. SITE_URL is the single place it is
+// read; override the env var only for previews on another origin.
+const SITE_URL = process.env.SITE_URL || "https://kankaku.io";
 
 // https://astro.build/config
 export default defineConfig({

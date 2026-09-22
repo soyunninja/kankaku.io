@@ -114,14 +114,14 @@ node scripts/generate-og-images.mjs
 
 Static output (`dist/`) — deploy anywhere that serves static files
 (Netlify, Vercel, Cloudflare Pages, GitHub Pages, a plain nginx `location /`
-pointed at `dist/`, PocketBase's own `publicDir`, ...). Set the `SITE_URL`
-environment variable to the real production origin before building
-(defaults to the placeholder `https://kankaku.example` — see
-`astro.config.mjs`, the single place this is read).
+pointed at `dist/`, PocketBase's own `publicDir`, ...). The production origin is
+`https://kankaku.io` (the default `SITE_URL`, read once in
+`astro.config.mjs`); set the `SITE_URL` environment variable only to build
+a preview for another origin.
 
 ## Before this goes public
 
-- A real `SITE_URL`.
+- DNS for `kankaku.io` pointing at the host that serves `dist/`, with HTTPS.
 - A public repo link for the hub (kankaku-hub is private today).
 - Native review of the Japanese copy — flagged in the footer as
   machine-authored.
