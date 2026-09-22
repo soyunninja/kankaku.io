@@ -97,13 +97,17 @@ const features: { icon: IconName; title: string; line: string }[] = [
   <!-- Screenshots -->
   <section class="container section">
     <p class="section__lede">{t("home.screenshotsLine")}</p>
-    <div class="grid grid--2">
-      <ScreenshotFigure src={hubDashboard} alt="kankaku hub dashboard: work time, cost and tokens for the period, dark theme" locale={locale} eager />
-      <ScreenshotFigure src={hubEntriesSessions} alt="kankaku hub entries grouped by session, one expanded, dark theme" locale={locale} />
-      <ScreenshotFigure src={hubProject} alt="kankaku hub project detail with trend, tasks and cost per model, dark theme" locale={locale} />
-      <ScreenshotFigure src={hubTaskDetail} alt="kankaku hub task detail listing its sessions with resume commands, dark theme" locale={locale} />
-      <ScreenshotFigure src={hubEntryDetailLight} alt="kankaku hub entry detail: agent, tokens, segments and technical details, light theme" locale={locale} />
-      <ScreenshotFigure src={hubCommandsJa} alt="kankaku hub commands reference in Japanese, dark theme" locale={locale} />
+    <div class="shots" data-shots>
+      <button type="button" class="shots__nav shots__nav--prev" data-shots-prev aria-label={t("home.shotsPrev")}>&#8249;</button>
+      <div class="shots__track" data-shots-track tabindex="0" role="region" aria-label={t("home.shotsRegion")}>
+        <div class="shots__item"><ScreenshotFigure src={hubDashboard} alt="kankaku hub dashboard: work time, cost and tokens for the period, dark theme" locale={locale} eager /></div>
+        <div class="shots__item"><ScreenshotFigure src={hubEntriesSessions} alt="kankaku hub entries grouped by session, one expanded, dark theme" locale={locale} /></div>
+        <div class="shots__item"><ScreenshotFigure src={hubProject} alt="kankaku hub project detail with trend, tasks and cost per model, dark theme" locale={locale} /></div>
+        <div class="shots__item"><ScreenshotFigure src={hubTaskDetail} alt="kankaku hub task detail listing its sessions with resume commands, dark theme" locale={locale} /></div>
+        <div class="shots__item"><ScreenshotFigure src={hubEntryDetailLight} alt="kankaku hub entry detail: agent, tokens, segments and technical details, light theme" locale={locale} /></div>
+        <div class="shots__item"><ScreenshotFigure src={hubCommandsJa} alt="kankaku hub commands reference in Japanese, dark theme" locale={locale} /></div>
+      </div>
+      <button type="button" class="shots__nav shots__nav--next" data-shots-next aria-label={t("home.shotsNext")}>&#8250;</button>
     </div>
   </section>
 
@@ -246,4 +250,88 @@ const features: { icon: IconName; title: string; line: string }[] = [
       padding-block: 2rem 1rem;
     }
   }
+
+  /* Screenshots: one horizontal strip, snap per capture, prev/next buttons.
+     The parallax uses CSS scroll-driven animations (view() timeline on the
+     strip's inline axis): each image glides inside its frame as it travels
+     across the viewport. Browsers without support just get the strip. */
+  .shots {
+    position: relative;
+  }
+  .shots__track {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0.5rem;
+    padding-block: 0.25rem 0.75rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .shots__track:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 4px;
+  }
+  .shots__item {
+    flex: 0 0 min(82%, 880px);
+    scroll-snap-align: center;
+  }
+  .shots__item :global(.screenshot) {
+    overflow: hidden;
+  }
+  .shots__nav {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: 1;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--foreground);
+    font: 700 1.5rem/1 var(--font-mono);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: 0 8px 24px -12px oklch(0 0 0 / 0.5);
+  }
+  .shots__nav:hover { color: var(--primary); border-color: var(--primary); }
+  .shots__nav:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .shots__nav--prev { left: -0.25rem; }
+  .shots__nav--next { right: -0.25rem; }
+  @media (max-width: 640px) {
+    .shots__item { flex-basis: 92%; }
+    .shots__nav { display: none; }
+  }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .shots__item :global(.screenshot img) {
+        animation: shot-parallax linear both;
+        animation-timeline: view(x inline);
+        scale: 1.08;
+      }
+    }
+  }
+  @keyframes shot-parallax {
+    from { translate: 4% 0; }
+    to { translate: -4% 0; }
+  }
 </style>
+
+<script>
+  // Prev/next buttons scroll the strip by one capture; the strip itself
+  // stays a native scroll container (trackpad, touch, shift+wheel, keys).
+  for (const root of document.querySelectorAll<HTMLElement>("[data-shots]")) {
+    const track = root.querySelector<HTMLElement>("[data-shots-track]");
+    if (!track) continue;
+    const step = () => {
+      const item = track.querySelector<HTMLElement>(".shots__item");
+      const gap = Number.parseFloat(getComputedStyle(track).columnGap || "16") || 16;
+      return (item?.getBoundingClientRect().width ?? track.clientWidth * 0.8) + gap;
+    };
+    root.querySelector("[data-shots-prev]")?.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
+    root.querySelector("[data-shots-next]")?.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
+  }
+</script>
