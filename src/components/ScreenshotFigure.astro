@@ -1,6 +1,6 @@
 ---
 import { Image } from "astro:assets";
-import { useTranslations, type Locale } from "../i18n/utils";
+import type { Locale } from "../i18n/utils";
 
 interface Props {
   src: ImageMetadata;
@@ -10,14 +10,12 @@ interface Props {
   eager?: boolean;
 }
 const { src, alt, locale, width = 1200, eager = false } = Astro.props;
-const t = useTranslations(locale);
 ---
 
 <figure class="screenshot">
   {/* AVIF only: universally supported by current browsers; astro:assets in
      this Astro version has no `fallbackFormat` prop for a <picture> pair. */}
   <Image src={src} alt={alt} width={width} loading={eager ? "eager" : "lazy"} format="avif" />
-  <figcaption>{t("common.fictionalDataCaption")}</figcaption>
 </figure>
 
 <style>
@@ -28,17 +26,11 @@ const t = useTranslations(locale);
     overflow: hidden;
     background: var(--card);
   }
+  /* Natural height: every capture shares the same window size, so no
+     aspect-ratio crop is needed and nothing gets cut off. */
   .screenshot img {
     display: block;
     width: 100%;
-    aspect-ratio: 16 / 10;
-    object-fit: cover;
-    object-position: top;
-  }
-  .screenshot figcaption {
-    padding: 0.6rem 0.9rem;
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-    border-top: 1px solid var(--border);
+    height: auto;
   }
 </style>
