@@ -1,16 +1,41 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
-import type { Locale } from "../i18n/utils";
+import { htmlLang, localizePath, useTranslations, type Locale } from "../i18n/utils";
+import { SITE_URL } from "../consts";
 
 interface Props {
   locale: Locale;
   title: string;
+  /** Search-engine title; falls back to `title`. The h1 always shows `title`. */
+  seoTitle?: string;
   description: string;
 }
-const { locale, title, description } = Astro.props;
+const { locale, title, seoTitle, description } = Astro.props;
+const pageTitle = seoTitle ?? title;
+const t = useTranslations(locale);
+
+const canonical = new URL(Astro.url.pathname, SITE_URL).toString();
+const homeUrl = new URL(localizePath("/", locale), SITE_URL).toString();
+
+const techArticleNode = {
+  "@type": "TechArticle",
+  headline: pageTitle,
+  description,
+  inLanguage: htmlLang(locale),
+  isPartOf: { "@id": `${SITE_URL}/#website` },
+  url: canonical,
+};
+
+const breadcrumbNode = {
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: t("nav.home"), item: homeUrl },
+    { "@type": "ListItem", position: 2, name: title, item: canonical },
+  ],
+};
 ---
 
-<BaseLayout locale={locale} title={title} description={description}>
+<BaseLayout locale={locale} title={pageTitle} description={description} ogType="article" jsonLd={[techArticleNode, breadcrumbNode]}>
   <div class="container doc-page">
     <article class="doc-content prose">
       <h1>{title}</h1>

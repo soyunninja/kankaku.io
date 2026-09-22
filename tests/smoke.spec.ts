@@ -91,3 +91,39 @@ test("commands filter narrows the list", async ({ page }) => {
   expect(after).toBeLessThan(before);
   expect(after).toBeGreaterThan(0);
 });
+
+test("SEO: titles and descriptions are unique across indexable pages, and JSON-LD parses", async ({ page }) => {
+  // The 404 pages intentionally share one title across locales (noindex,
+  // so duplication there doesn't matter for SEO) and are excluded here.
+  const indexablePaths = [
+    "/",
+    "/docs/guide",
+    "/docs/commands",
+    "/en",
+    "/en/docs/guide",
+    "/en/docs/commands",
+    "/ja",
+    "/ja/docs/guide",
+    "/ja/docs/commands",
+  ];
+
+  const titles: string[] = [];
+  const descriptions: string[] = [];
+
+  for (const path of indexablePaths) {
+    await page.goto(path);
+    const title = await page.title();
+    const description = await page.locator('meta[name="description"]').getAttribute("content");
+    expect(title.length, `${path}: title too long`).toBeLessThanOrEqual(60);
+    expect(description, `${path}: missing description`).not.toBeNull();
+    titles.push(title);
+    descriptions.push(description as string);
+
+    const ldJson = await page.locator('script[type="application/ld+json"]').textContent();
+    expect(ldJson, `${path}: missing ld+json`).not.toBeNull();
+    expect(() => JSON.parse(ldJson as string), `${path}: ld+json does not parse`).not.toThrow();
+  }
+
+  expect(new Set(titles).size, `duplicate titles: ${titles.join(" | ")}`).toBe(titles.length);
+  expect(new Set(descriptions).size, `duplicate descriptions: ${descriptions.join(" | ")}`).toBe(descriptions.length);
+});

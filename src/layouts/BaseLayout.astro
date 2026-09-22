@@ -1,5 +1,5 @@
 ---
-import { LOCALES, SITE_URL, KANKAKU } from "../consts";
+import { LOCALES, SITE_URL } from "../consts";
 import { htmlLang, localizePath, stripLocale, useTranslations, type Locale } from "../i18n/utils";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
@@ -11,34 +11,49 @@ interface Props {
   description: string;
   /** Defaults to the per-locale generated OG image. */
   ogImage?: string;
+  /** "article" for docs pages, "website" (default) for everything else. */
+  ogType?: "website" | "article";
   noindex?: boolean;
+  /**
+   * Extra JSON-LD nodes to merge into this page's @graph, alongside the
+   * WebSite node every page carries. The home page adds SoftwareApplication;
+   * docs pages add TechArticle + BreadcrumbList. Kept out of BaseLayout so
+   * each page type owns only the structured data it can honestly claim.
+   */
+  jsonLd?: Record<string, unknown>[];
+  /** The one above-the-fold eager image on this page, if any (home only today). */
+  preloadImage?: { href: string; type: string };
 }
 
-const { locale, title, description, ogImage, noindex = false } = Astro.props;
+const {
+  locale,
+  title,
+  description,
+  ogImage,
+  ogType = "website",
+  noindex = false,
+  jsonLd = [],
+  preloadImage,
+} = Astro.props;
 const t = useTranslations(locale);
 const currentPath = Astro.url.pathname;
 const bare = stripLocale(currentPath);
 const canonical = new URL(localizePath(bare, locale), SITE_URL).toString();
 const pageTitle = `${title} · ${t("meta.siteName")}`;
 const image = new URL(ogImage ?? `/og/${locale}.png`, SITE_URL).toString();
+const otherLocales = LOCALES.filter((l) => l !== locale);
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "kankaku",
-  applicationCategory: "DeveloperApplication",
-  operatingSystem: "macOS, Linux, Windows",
-  softwareVersion: KANKAKU.version,
+const websiteNode = {
+  "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
+  name: t("meta.siteName"),
   url: SITE_URL,
-  downloadUrl: `https://www.npmjs.com/package/${KANKAKU.npmPackage}`,
-  codeRepository: KANKAKU.repo,
-  license: "https://opensource.org/licenses/MIT",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "USD",
-  },
-  description,
+  inLanguage: htmlLang(locale),
+};
+
+const jsonLdDoc = {
+  "@context": "https://schema.org",
+  "@graph": [websiteNode, ...jsonLd],
 };
 ---
 
@@ -57,23 +72,35 @@ const jsonLd = {
     ))}
     <link rel="alternate" hreflang="x-default" href={new URL(localizePath(bare, "es"), SITE_URL).toString()} />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content="kankaku" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={pageTitle} />
     <meta property="og:locale" content={htmlLang(locale)} />
+    {otherLocales.map((l) => <meta property="og:locale:alternate" content={htmlLang(l)} />)}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={image} />
+    <meta name="twitter:image:alt" content={pageTitle} />
+
+    <link rel="preload" href="/fonts/jbm-nerd-regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jbm-nerd-bold.woff2" as="font" type="font/woff2" crossorigin />
+    {preloadImage && <link rel="preload" href={preloadImage.href} as="image" type={preloadImage.type} />}
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#060407" media="(prefers-color-scheme: dark)" />
     <meta name="generator" content={Astro.generator} />
 
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLdDoc)} />
 
     <script is:inline>
       // No-FOUC theme application: runs before first paint, before any CSS

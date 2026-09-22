@@ -10,6 +10,8 @@ import { z } from "astro/zod";
  */
 const docsSchema = z.object({
   title: z.string(),
+  /** Optional search-engine title (<title>, og:title); the visible h1 stays `title`. */
+  seoTitle: z.string().optional(),
   description: z.string(),
   /** Nav order within the docs sidebar/menu. */
   order: z.number(),

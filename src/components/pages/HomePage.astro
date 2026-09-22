@@ -1,11 +1,12 @@
 ---
+import { getImage } from "astro:assets";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import TerminalHero from "../TerminalHero.astro";
 import ScreenshotFigure from "../ScreenshotFigure.astro";
 import NerdIcon, { type IconName } from "../icons/NerdIcon.astro";
 import CopyButton from "../CopyButton.astro";
 import { localizePath, useTranslations, type Locale } from "../../i18n/utils";
-import { KANKAKU } from "../../consts";
+import { KANKAKU, SITE_URL } from "../../consts";
 
 import hubDashboard from "../../assets/screenshots/hub-dashboard-dark.webp";
 import hubEntriesSessions from "../../assets/screenshots/hub-entries-sessions-dark.webp";
@@ -20,11 +21,41 @@ interface Props {
 const { locale } = Astro.props;
 const t = useTranslations(locale);
 
+// The first gallery capture renders eager (above the fold on wide
+// viewports); preloading it at its actual rendered format/width (matching
+// ScreenshotFigure's defaults) shaves the discovery hop for the browser's
+// preload scanner. Cheap: same transform Astro already generates for the
+// <img>, no extra encode.
+const heroImage = await getImage({ src: hubDashboard, width: 1200, format: "avif" });
+
 const steps = [
   { icon: "download" as const, title: t("home.stepInstallTitle"), line: t("home.stepInstallLine") },
   { icon: "code" as const, title: t("home.stepWorkTitle"), line: t("home.stepWorkLine") },
   { icon: "terminal" as const, title: t("home.stepSeeTitle"), line: t("home.stepSeeLine") },
 ];
+
+const softwareApplicationNode = {
+  "@type": "SoftwareApplication",
+  name: "kankaku",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "macOS, Linux, Windows",
+  softwareVersion: KANKAKU.version,
+  url: SITE_URL,
+  downloadUrl: `https://www.npmjs.com/package/${KANKAKU.npmPackage}`,
+  codeRepository: KANKAKU.repo,
+  license: "https://opensource.org/licenses/MIT",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "kankaku",
+    url: "https://kankaku.io",
+  },
+  description: t("meta.homeDescription"),
+};
 
 const features: { icon: IconName; title: string; line: string }[] = [
   { icon: "briefcase", title: t("home.feature1Title"), line: t("home.feature1Line") },
@@ -36,7 +67,13 @@ const features: { icon: IconName; title: string; line: string }[] = [
 ];
 ---
 
-<BaseLayout locale={locale} title={t("meta.tagline")} description={t("meta.tagline")}>
+<BaseLayout
+  locale={locale}
+  title={t("meta.homeTitle")}
+  description={t("meta.homeDescription")}
+  jsonLd={[softwareApplicationNode]}
+  preloadImage={{ href: heroImage.src, type: "image/avif" }}
+>
   <!-- Hero -->
   <section class="hero container">
     <div class="hero__copy">

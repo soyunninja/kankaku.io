@@ -20,5 +20,13 @@ export default defineConfig({
       redirectToDefaultLocale: false,
     },
   },
-  integrations: [sitemap(), mdx()],
+  integrations: [
+    sitemap({
+      i18n: {
+        defaultLocale: "es",
+        locales: { es: "es", en: "en", ja: "ja" },
+      },
+    }),
+    mdx(),
+  ],
 });

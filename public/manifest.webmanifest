@@ -1,0 +1,16 @@
+{
+  "name": "kankaku",
+  "short_name": "kankaku",
+  "description": "Measures how long your AI agent actually worked — not how long it took.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060407",
+  "theme_color": "#060407",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ]
+}

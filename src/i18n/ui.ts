@@ -13,6 +13,8 @@ export const ui = {
     meta: {
       siteName: "kankaku",
       tagline: "Mide cuánto trabajó tu agente — no cuánto tardó.",
+      homeTitle: "Medir el tiempo de trabajo de agentes de IA",
+      homeDescription: "kankaku es una extensión de pi que mide cuánto trabajó tu agente de IA — no cuánto tardó — y calcula el coste de tokens por cliente y proyecto.",
     },
     nav: {
       home: "Inicio",
@@ -99,6 +101,8 @@ export const ui = {
     meta: {
       siteName: "kankaku",
       tagline: "Measures how long your agent worked — not how long it took.",
+      homeTitle: "Measure AI agent work time",
+      homeDescription: "kankaku is a pi extension that measures how long your AI agent actually worked — not wall-clock time — plus token cost per client and project.",
     },
     nav: {
       home: "Home",
@@ -185,6 +189,8 @@ export const ui = {
     meta: {
       siteName: "kankaku",
       tagline: "エージェントの作業時間を測定します — かかった時間ではなく。",
+      homeTitle: "AIエージェントの作業時間を測定",
+      homeDescription: "kankakuはpiの拡張機能。AIエージェントが実際に作業した時間と、クライアント・プロジェクト別のトークンコストを測定します。",
     },
     nav: {
       home: "ホーム",
