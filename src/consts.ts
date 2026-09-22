@@ -12,21 +12,28 @@ export const KANKAKU = {
   homepage: "https://github.com/soyunninja/kankaku#readme",
 };
 
-export const LOCALES = ["es", "en", "ja"] as const;
+export const LOCALES = ["en", "es", "ja"] as const;
 export type Locale = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: Locale = "es";
+export const DEFAULT_LOCALE: Locale = "en";
 
 /** BCP-47 tags for <html lang> and hreflang. */
 export const LOCALE_TAGS: Record<Locale, string> = {
-  es: "es",
   en: "en",
+  es: "es",
   ja: "ja",
 };
 
 export const LOCALE_LABELS: Record<Locale, string> = {
-  es: "Español",
   en: "English",
+  es: "Español",
   ja: "日本語",
+};
+
+/** language_TERRITORY tags for the Open Graph og:locale/og:locale:alternate meta (its own convention — distinct from the bare BCP-47 tags used by <html lang> and hreflang). */
+export const OG_LOCALES: Record<Locale, string> = {
+  en: "en_US",
+  es: "es_ES",
+  ja: "ja_JP",
 };
 
 /** The site has exactly two docs pages per locale: one long-form guide, one command reference. */

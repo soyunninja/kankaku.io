@@ -3,7 +3,7 @@ import { DEFAULT_LOCALE, LOCALES, LOCALE_TAGS } from "../consts";
 
 export type { Locale };
 
-/** Locale from a request pathname, e.g. "/en/docs/guide" -> "en", "/docs/guide" -> "es" (default, unprefixed). */
+/** Locale from a request pathname, e.g. "/es/docs/guide" -> "es", "/docs/guide" -> "en" (default, unprefixed). */
 export function getLocaleFromUrl(url: URL): Locale {
   const [, maybeLocale] = url.pathname.split("/");
   if (LOCALES.includes(maybeLocale as Locale)) return maybeLocale as Locale;
@@ -27,7 +27,7 @@ export function useTranslations(locale: Locale) {
   };
 }
 
-/** Build a path for the same page in a different locale. es is unprefixed (default locale). */
+/** Build a path for the same page in a different locale. en is unprefixed (default locale). */
 export function localizePath(path: string, locale: Locale): string {
   const clean = path.replace(/^\/(es|en|ja)(\/|$)/, "/");
   if (locale === DEFAULT_LOCALE) return clean === "" ? "/" : clean;

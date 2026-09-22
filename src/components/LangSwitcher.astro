@@ -76,7 +76,15 @@ const CODE: Record<Locale, string> = { es: "ES", en: "EN", ja: "JA" };
 <script>
   document.addEventListener("click", (event) => {
     const target = event.target as HTMLElement;
-    if (target.closest("[data-lang-switcher] a")) {
+    const link = target.closest<HTMLAnchorElement>("[data-lang-switcher] a");
+    if (link) {
+      // An explicit choice: remember it so the first-visit redirect
+      // (BaseLayout.astro) never overrides it again.
+      try {
+        localStorage.setItem("kankaku-lang", link.getAttribute("hreflang") ?? "");
+      } catch (e) {
+        /* private browsing / blocked storage: choice just won't persist */
+      }
       return; // let navigation happen
     }
     for (const details of document.querySelectorAll<HTMLDetailsElement>("[data-lang-switcher][open]")) {

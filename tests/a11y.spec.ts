@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-const PAGES = ["/", "/docs/guide", "/docs/commands", "/en", "/en/docs/guide", "/ja", "/ja/docs/guide"];
+const PAGES = ["/", "/docs/guide", "/docs/commands", "/es", "/es/docs/guide", "/ja", "/ja/docs/guide"];
 
 for (const path of PAGES) {
   test(`axe: ${path} has no violations (dark)`, async ({ page }) => {

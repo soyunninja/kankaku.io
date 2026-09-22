@@ -1,8 +1,14 @@
 import { test, expect, type Page } from "@playwright/test";
 
+// Mirrors playwright.config.ts's own origin so tests below that need a
+// fresh browser context (a different navigator locale, empty storage) can
+// build an absolute URL: browser.newContext() does not inherit `use.baseURL`.
+const PORT = Number(process.env.SITE_TEST_PORT ?? 4399);
+const ORIGIN = `http://localhost:${PORT}`;
+
 const LOCALES: { code: string; home: string; guide: string; lang: string }[] = [
-  { code: "es", home: "/", guide: "/docs/guide", lang: "es" },
-  { code: "en", home: "/en", guide: "/en/docs/guide", lang: "en" },
+  { code: "en", home: "/", guide: "/docs/guide", lang: "en" },
+  { code: "es", home: "/es", guide: "/es/docs/guide", lang: "es" },
   { code: "ja", home: "/ja", guide: "/ja/docs/guide", lang: "ja" },
 ];
 
@@ -48,8 +54,8 @@ for (const locale of LOCALES) {
     test(`language switch keeps the same page`, async ({ page }) => {
       await page.goto(locale.guide);
       await page.locator("[data-lang-switcher] summary").click();
-      await page.locator('[data-lang-switcher] a[hreflang="en"]').click();
-      await expect(page).toHaveURL(/\/en\/docs\/guide$/);
+      await page.locator('[data-lang-switcher] a[hreflang="es"]').click();
+      await expect(page).toHaveURL(/\/es\/docs\/guide$/);
       await expect(page.locator("h1")).toBeVisible();
     });
 
@@ -99,9 +105,9 @@ test("SEO: titles and descriptions are unique across indexable pages, and JSON-L
     "/",
     "/docs/guide",
     "/docs/commands",
-    "/en",
-    "/en/docs/guide",
-    "/en/docs/commands",
+    "/es",
+    "/es/docs/guide",
+    "/es/docs/commands",
     "/ja",
     "/ja/docs/guide",
     "/ja/docs/commands",
@@ -126,4 +132,50 @@ test("SEO: titles and descriptions are unique across indexable pages, and JSON-L
 
   expect(new Set(titles).size, `duplicate titles: ${titles.join(" | ")}`).toBe(titles.length);
   expect(new Set(descriptions).size, `duplicate descriptions: ${descriptions.join(" | ")}`).toBe(descriptions.length);
+});
+
+test("i18n: <html lang> is correct at the root and under /es", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page.goto("/es");
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+});
+
+test("i18n: x-default hreflang always points at the English URL", async ({ page }) => {
+  for (const path of ["/", "/es", "/ja", "/es/docs/guide", "/ja/docs/guide"]) {
+    await page.goto(path);
+    const href = await page.locator('link[rel="alternate"][hreflang="x-default"]').getAttribute("href");
+    expect(href, `${path}: missing x-default hreflang`).not.toBeNull();
+    expect(new URL(href as string).pathname, `${path}: x-default does not point at the English URL`).toBe(
+      path.replace(/^\/(es|ja)(\/|$)/, "/").replace(/\/$/, "") || "/",
+    );
+  }
+});
+
+test("i18n redirect: es-ES browser locale with empty storage redirects / to /es", async ({ browser }) => {
+  const context = await browser.newContext({ locale: "es-ES" });
+  const page = await context.newPage();
+  await page.goto(`${ORIGIN}/`);
+  await page.waitForURL(/\/es$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await context.close();
+});
+
+test("i18n redirect: an explicit kankaku-lang=en choice is never overridden", async ({ browser }) => {
+  const context = await browser.newContext({ locale: "es-ES" });
+  const page = await context.newPage();
+  await page.addInitScript(() => localStorage.setItem("kankaku-lang", "en"));
+  await page.goto(`${ORIGIN}/`);
+  await expect(page).toHaveURL(`${ORIGIN}/`);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await context.close();
+});
+
+test("i18n redirect: visiting /es directly under a ja-JP browser locale does not redirect", async ({ browser }) => {
+  const context = await browser.newContext({ locale: "ja-JP" });
+  const page = await context.newPage();
+  await page.goto(`${ORIGIN}/es`);
+  await expect(page).toHaveURL(`${ORIGIN}/es`);
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await context.close();
 });

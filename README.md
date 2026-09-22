@@ -1,7 +1,7 @@
 # kankaku site
 
 Public, developer-facing site for **kankaku** (the pi extension) and its
-optional hub. Astro, static output, no server, three locales (es default, en,
+optional hub. Astro, static output, no server, three locales (en default, es,
 ja). Separate Astro project, not part of the `web/` app — see
 [`docs/adr/`](../docs/adr) for why.
 
@@ -70,8 +70,87 @@ direction is to keep the nav to Home/Guide/Commands only.
 3. Add `src/content/docs/<locale>/{guide,commands}.mdx`.
 4. Add a `src/data/commands-i18n/<locale>.json`.
 5. Add a `src/pages/<locale>/index.astro`, `404.astro`, `docs/[slug].astro`
-   (copy an existing locale's three files, change the locale prop / collection name).
+   (copy an existing non-default locale's three files, change the locale
+   prop / collection name). The default locale's three files instead live
+   unprefixed at `src/pages/{index,404,docs/[slug]}.astro` — see "Locale
+   routing" below.
 6. Run `pnpm run i18n:check`.
+
+## Locale routing and the first-visit redirect
+
+English is the default locale and is unprefixed: `/`, `/docs/guide`,
+`/docs/commands`. Spanish lives under `/es/...`, Japanese under `/ja/...`.
+`src/i18n/utils.ts#localizePath` and everything that derives from
+`DEFAULT_LOCALE` (canonical URLs, hreflang alternates, `x-default` — always
+the English URL — `og:locale`, JSON-LD `inLanguage`, the sitemap) follow
+this automatically; content collections keep their existing per-locale
+folders (`src/content/docs/{en,es,ja}`), only routing changed.
+
+A tiny inline script in `BaseLayout.astro` (`is:inline`, no dependencies)
+redirects a first-time visitor on an English page to `/es` or `/ja` when
+their browser's preferred language is Spanish or Japanese:
+
+```js
+(function () {
+  var KEY = "kankaku-lang";
+  var lang = document.documentElement.lang;
+  try {
+    if (lang !== "en") {
+      localStorage.setItem(KEY, lang); // direct /es or /ja visit: that IS the choice
+      return;
+    }
+    if (localStorage.getItem(KEY)) return; // explicit choice already made: never override it
+    var langs = navigator.languages || [navigator.language || ""];
+    for (var i = 0; i < langs.length; i++) {
+      var l = (langs[i] || "").slice(0, 2).toLowerCase();
+      if (l === "es" || l === "ja") {
+        location.replace("/" + l + (location.pathname === "/" ? "" : location.pathname));
+      }
+      if (l === "es" || l === "ja" || l === "en") return; // first es/ja/en entry decides it
+    }
+  } catch (e) {
+    /* private browsing / blocked storage: skip the redirect */
+  }
+})();
+```
+
+Rules:
+
+- Runs once, only on English (root) pages; a URL that already has a locale
+  prefix (`/es/...`, `/ja/...`) is never redirected.
+- `localStorage["kankaku-lang"]` is the record of an explicit choice. It is
+  set when the visitor lands directly on `/es` or `/ja` (they chose by
+  URL), and when they click a `LangSwitcher` link (`src/components/
+  LangSwitcher.astro`, before navigation happens). Once set, the redirect
+  never runs again for that browser.
+- Anything else (browser language is `en`, or doesn't match `es`/`ja`/`en`
+  at all) does nothing — the visitor stays on the English page.
+
+This is client-side only, so it cannot help a crawler or a JS-disabled
+visitor land on the right locale; a host that wants that can add a
+server-side `Accept-Language` redirect for `/` only (never for `/es` or
+`/ja`, which are explicit). Example, nginx, entirely optional:
+
+```nginx
+# Optional: redirect first-time "/" visits by Accept-Language. Client-side
+# localStorage still wins after that — this only helps the very first
+# request (crawlers, JS disabled). Never applies to /es or /ja, which are
+# explicit already.
+map $http_accept_language $kankaku_lang_redirect {
+    default       "";
+    ~*^es         /es;
+    ~*^ja         /ja;
+}
+
+server {
+    location = / {
+        if ($kankaku_lang_redirect) {
+            return 302 $kankaku_lang_redirect;
+        }
+        try_files /index.html =404;
+    }
+}
+```
 
 ## Refreshing screenshots
 

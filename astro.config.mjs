@@ -13,8 +13,8 @@ export default defineConfig({
   trailingSlash: "never",
   server: { port: 4321 },
   i18n: {
-    locales: ["es", "en", "ja"],
-    defaultLocale: "es",
+    locales: ["en", "es", "ja"],
+    defaultLocale: "en",
     routing: {
       prefixDefaultLocale: false,
       redirectToDefaultLocale: false,
@@ -23,7 +23,7 @@ export default defineConfig({
   integrations: [
     sitemap({
       i18n: {
-        defaultLocale: "es",
+        defaultLocale: "en",
         locales: { es: "es", en: "en", ja: "ja" },
       },
     }),
