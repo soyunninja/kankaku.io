@@ -98,5 +98,9 @@ const jsonLd = {
       <slot />
     </main>
     <Footer locale={locale} />
+    <!-- Site analytics (owner's own instance). is:inline keeps Astro from
+         bundling or relocating it; it stays as the last thing in <body>. -->
+    <script is:inline defer src="https://stats.soyun.ninja/t.js"></script>
+    <noscript><img src="https://stats.soyun.ninja/t.gif" alt="" width="1" height="1"></noscript>
   </body>
 </html>
