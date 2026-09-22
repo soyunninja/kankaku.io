@@ -47,7 +47,7 @@ export const ui = {
       onThisPage: "En esta página",
     },
     home: {
-      heroKicker: "pi extension · v0.4.6",
+      heroKicker: "pi extension · v0.5.0",
       heroLine: "Sabe cuánto trabajó tu agente en cada cliente, proyecto y tarea. Y cuánto te costó.",
       heroInstall: "pi install npm:kankaku",
       heroCtaDocs: "Guía",
@@ -135,7 +135,7 @@ export const ui = {
       onThisPage: "On this page",
     },
     home: {
-      heroKicker: "pi extension · v0.4.6",
+      heroKicker: "pi extension · v0.5.0",
       heroLine: "Know how long your agent worked on each client, project and task. And what it cost you.",
       heroInstall: "pi install npm:kankaku",
       heroCtaDocs: "Guide",
@@ -223,7 +223,7 @@ export const ui = {
       onThisPage: "このページの内容",
     },
     home: {
-      heroKicker: "piエクステンション · v0.4.6",
+      heroKicker: "piエクステンション · v0.5.0",
       heroLine: "エージェントが各クライアント・プロジェクト・タスクにどれだけ作業したかがわかります。かかったコストも。",
       heroInstall: "pi install npm:kankaku",
       heroCtaDocs: "ガイド",

@@ -5,7 +5,7 @@ export const SITE_NAME = "kankaku";
 
 /** kankaku (the pi extension) facts — keep in sync with the kankaku repo. Never invent numbers here. */
 export const KANKAKU = {
-  version: "0.4.6",
+  version: "0.5.0",
   npmPackage: "kankaku",
   repo: "https://github.com/soyunninja/kankaku",
   repoShort: "github.com/soyunninja/kankaku",

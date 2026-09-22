@@ -20,17 +20,17 @@ const outDir = path.join(here, "..", "public", "og");
 // Keep in sync with src/i18n/ui.ts: home.heroKicker and home.heroLine.
 const COPY = {
   es: {
-    kicker: "pi extension · v0.4.6",
+    kicker: "pi extension · v0.5.0",
     line: "Sabe cuánto trabajó tu agente en cada cliente, proyecto y tarea. Y cuánto te costó.",
     prompt: "$ pi install npm:kankaku",
   },
   en: {
-    kicker: "pi extension · v0.4.6",
+    kicker: "pi extension · v0.5.0",
     line: "Know how long your agent worked on each client, project and task. And what it cost you.",
     prompt: "$ pi install npm:kankaku",
   },
   ja: {
-    kicker: "piエクステンション · v0.4.6",
+    kicker: "piエクステンション · v0.5.0",
     line: "エージェントが各クライアント・プロジェクト・タスクにどれだけ作業したかがわかります。かかったコストも。",
     prompt: "$ pi install npm:kankaku",
   },
