@@ -14,7 +14,6 @@
     "i18n:check": "node scripts/check-i18n.mjs",
     "links:check": "node scripts/check-links.mjs",
     "build:font": "node scripts/build-font.mjs",
-    "screenshots:refresh": "node scripts/refresh-screenshots.mjs",
     "test:e2e": "playwright test",
     "test:a11y": "playwright test tests/a11y.spec.ts"
   },

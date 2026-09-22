@@ -75,20 +75,15 @@ direction is to keep the nav to Home/Guide/Commands only.
 
 ## Refreshing screenshots
 
-Screenshots in `src/assets/screenshots/` are copied from the hub app's own
-reference screenshots (`../web/docs/screenshots/`), never imported directly
-across the project boundary:
-
-```
-node scripts/refresh-screenshots.mjs
-```
-
-As of this writing, the other writer is actively changing the sessions
-queue, entries explorer, and dashboard agent icons — `dashboard-*`,
-`entries-*`, `entry-detail-*`, and `unassigned-*` screenshots should be
-re-reviewed (and this site's landing page screenshots re-taken) once that
-work lands.
-
+The home page shows hand-taken window captures of the hub
+(`src/assets/screenshots/hub-*.webp`, ~1280px wide, 50–95 KB each), made
+against the isolated demo stack (`scripts/isolated-stack.sh up <dir> --seed
+--seed-profile rich` in the repo root), so every screen shows fictional data
+only (SITE-REQ-009). To refresh: take new window captures, export as WebP,
+replace the files keeping their names, and check the figure `alt` texts in
+`src/components/pages/HomePage.astro` still describe them. The web app's own
+full-page e2e screenshots live in `../web/docs/screenshots/` and are not used
+here any more (they were several MB each).
 ## Rebuilding the font subset
 
 ```

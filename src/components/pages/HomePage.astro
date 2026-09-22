@@ -7,10 +7,12 @@ import CopyButton from "../CopyButton.astro";
 import { localizePath, useTranslations, type Locale } from "../../i18n/utils";
 import { KANKAKU } from "../../consts";
 
-import dashboardDark from "../../assets/screenshots/dashboard-dark.png";
-import dashboardLight from "../../assets/screenshots/dashboard-light.png";
-import tasksDark from "../../assets/screenshots/tasks-dark.png";
-import clientsDark from "../../assets/screenshots/clients-dark.png";
+import hubDashboard from "../../assets/screenshots/hub-dashboard-dark.webp";
+import hubEntriesSessions from "../../assets/screenshots/hub-entries-sessions-dark.webp";
+import hubProject from "../../assets/screenshots/hub-project-dark.webp";
+import hubTaskDetail from "../../assets/screenshots/hub-task-detail-dark.webp";
+import hubEntryDetailLight from "../../assets/screenshots/hub-entry-detail-light.webp";
+import hubCommandsJa from "../../assets/screenshots/hub-commands-ja-dark.webp";
 
 interface Props {
   locale: Locale;
@@ -96,10 +98,12 @@ const features: { icon: IconName; title: string; line: string }[] = [
   <section class="container section">
     <p class="section__lede">{t("home.screenshotsLine")}</p>
     <div class="grid grid--2">
-      <ScreenshotFigure src={dashboardDark} alt="kankaku hub dashboard, dark theme" locale={locale} eager />
-      <ScreenshotFigure src={dashboardLight} alt="kankaku hub dashboard, light theme" locale={locale} />
-      <ScreenshotFigure src={tasksDark} alt="kankaku hub tasks list, dark theme" locale={locale} />
-      <ScreenshotFigure src={clientsDark} alt="kankaku hub clients list, dark theme" locale={locale} />
+      <ScreenshotFigure src={hubDashboard} alt="kankaku hub dashboard: work time, cost and tokens for the period, dark theme" locale={locale} eager />
+      <ScreenshotFigure src={hubEntriesSessions} alt="kankaku hub entries grouped by session, one expanded, dark theme" locale={locale} />
+      <ScreenshotFigure src={hubProject} alt="kankaku hub project detail with trend, tasks and cost per model, dark theme" locale={locale} />
+      <ScreenshotFigure src={hubTaskDetail} alt="kankaku hub task detail listing its sessions with resume commands, dark theme" locale={locale} />
+      <ScreenshotFigure src={hubEntryDetailLight} alt="kankaku hub entry detail: agent, tokens, segments and technical details, light theme" locale={locale} />
+      <ScreenshotFigure src={hubCommandsJa} alt="kankaku hub commands reference in Japanese, dark theme" locale={locale} />
     </div>
   </section>
 
