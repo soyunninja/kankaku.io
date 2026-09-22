@@ -94,20 +94,23 @@ const features: { icon: IconName; title: string; line: string }[] = [
     </div>
   </section>
 
-  <!-- Screenshots -->
-  <section class="container section">
-    <p class="section__lede">{t("home.screenshotsLine")}</p>
-    <div class="shots" data-shots>
-      <button type="button" class="shots__nav shots__nav--prev" data-shots-prev aria-label={t("home.shotsPrev")}>&#8249;</button>
-      <div class="shots__track" data-shots-track tabindex="0" role="region" aria-label={t("home.shotsRegion")}>
-        <div class="shots__item"><ScreenshotFigure src={hubDashboard} alt="kankaku hub dashboard: work time, cost and tokens for the period, dark theme" locale={locale} eager /></div>
-        <div class="shots__item"><ScreenshotFigure src={hubEntriesSessions} alt="kankaku hub entries grouped by session, one expanded, dark theme" locale={locale} /></div>
-        <div class="shots__item"><ScreenshotFigure src={hubProject} alt="kankaku hub project detail with trend, tasks and cost per model, dark theme" locale={locale} /></div>
-        <div class="shots__item"><ScreenshotFigure src={hubTaskDetail} alt="kankaku hub task detail listing its sessions with resume commands, dark theme" locale={locale} /></div>
-        <div class="shots__item"><ScreenshotFigure src={hubEntryDetailLight} alt="kankaku hub entry detail: agent, tokens, segments and technical details, light theme" locale={locale} /></div>
-        <div class="shots__item"><ScreenshotFigure src={hubCommandsJa} alt="kankaku hub commands reference in Japanese, dark theme" locale={locale} /></div>
+  <!-- Screenshots: a scroll-driven horizontal gallery. The block pins to the
+       viewport while the page scrolls and the row of captures slides
+       sideways, first capture centered on entry, last one centered on exit.
+       Narrow screens and reduced-motion users get a native horizontal strip. -->
+  <section class="section gallery-section">
+    <p class="container section__lede">{t("home.screenshotsLine")}</p>
+    <div class="gallery" data-gallery style="--n: 6">
+      <div class="gallery__sticky" data-gallery-sticky>
+        <div class="gallery__track" data-gallery-track>
+        <div class="gallery__item"><ScreenshotFigure src={hubDashboard} alt="kankaku hub dashboard: work time, cost and tokens for the period, dark theme" locale={locale} eager /></div>
+        <div class="gallery__item"><ScreenshotFigure src={hubEntriesSessions} alt="kankaku hub entries grouped by session, one expanded, dark theme" locale={locale} /></div>
+        <div class="gallery__item"><ScreenshotFigure src={hubProject} alt="kankaku hub project detail with trend, tasks and cost per model, dark theme" locale={locale} /></div>
+        <div class="gallery__item"><ScreenshotFigure src={hubTaskDetail} alt="kankaku hub task detail listing its sessions with resume commands, dark theme" locale={locale} /></div>
+        <div class="gallery__item"><ScreenshotFigure src={hubEntryDetailLight} alt="kankaku hub entry detail: agent, tokens, segments and technical details, light theme" locale={locale} /></div>
+        <div class="gallery__item"><ScreenshotFigure src={hubCommandsJa} alt="kankaku hub commands reference in Japanese, dark theme" locale={locale} /></div>
+        </div>
       </div>
-      <button type="button" class="shots__nav shots__nav--next" data-shots-next aria-label={t("home.shotsNext")}>&#8250;</button>
     </div>
   </section>
 
@@ -251,87 +254,99 @@ const features: { icon: IconName; title: string; line: string }[] = [
     }
   }
 
-  /* Screenshots: one horizontal strip, snap per capture, prev/next buttons.
-     The parallax uses CSS scroll-driven animations (view() timeline on the
-     strip's inline axis): each image glides inside its frame as it travels
-     across the viewport. Browsers without support just get the strip. */
-  .shots {
-    position: relative;
+  /* Screenshots gallery (see the markup comment). --header is set by the
+     script from the sticky site header's real height; --n is the item count.
+     Scroll distance per capture is 70vh; the pinned box is the viewport
+     minus the header, and each capture is sized to fit it whole. */
+  .gallery-section {
+    padding-inline: 0;
   }
-  .shots__track {
+  .gallery {
+    --header: 3.5rem;
+    --pin: calc(100vh - var(--header) - env(safe-area-inset-top, 0px));
+    height: calc((var(--n) - 1) * 70vh + var(--pin));
+  }
+  .gallery__sticky {
+    position: sticky;
+    top: calc(var(--header) + env(safe-area-inset-top, 0px));
+    height: var(--pin);
     display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: 0.5rem;
-    padding-block: 0.25rem 0.75rem;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
-  .shots__track:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 4px;
-  }
-  .shots__item {
-    flex: 0 0 min(82%, 880px);
-    scroll-snap-align: center;
-  }
-  .shots__item :global(.screenshot) {
+    align-items: center;
     overflow: hidden;
   }
-  .shots__nav {
-    position: absolute;
-    top: 50%;
-    translate: 0 -50%;
-    z-index: 1;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 999px;
+  .gallery__track {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    will-change: transform;
+  }
+  .gallery__item {
+    flex: 0 0 min(86vw, 1240px);
+  }
+  .gallery__item :global(.screenshot) {
+    display: flex;
+    justify-content: center;
+    background: transparent;
+    border: 0;
+  }
+  .gallery__item :global(.screenshot img) {
+    width: 100%;
+    height: auto;
+    max-height: calc(var(--pin) - 3rem);
+    object-fit: contain;
     border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--foreground);
-    font: 700 1.5rem/1 var(--font-mono);
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-    box-shadow: 0 8px 24px -12px oklch(0 0 0 / 0.5);
+    border-radius: var(--radius-lg);
   }
-  .shots__nav:hover { color: var(--primary); border-color: var(--primary); }
-  .shots__nav:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
-  .shots__nav--prev { left: -0.25rem; }
-  .shots__nav--next { right: -0.25rem; }
-  @media (max-width: 640px) {
-    .shots__item { flex-basis: 92%; }
-    .shots__nav { display: none; }
-  }
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .shots__item :global(.screenshot img) {
-        animation: shot-parallax linear both;
-        animation-timeline: view(x inline);
-        scale: 1.08;
-      }
+  /* Fallback: plain horizontal strip (phones, reduced motion, no JS). */
+  @media (max-width: 700px), (prefers-reduced-motion: reduce) {
+    .gallery { height: auto; }
+    .gallery__sticky {
+      position: static;
+      height: auto;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-block: 0.5rem 1rem;
+      scrollbar-width: thin;
     }
-  }
-  @keyframes shot-parallax {
-    from { translate: 4% 0; }
-    to { translate: -4% 0; }
+    .gallery__track { transform: none !important; padding-inline: 7vw; gap: 1rem; }
+    .gallery__item { flex-basis: 86vw; scroll-snap-align: center; }
   }
 </style>
 
 <script>
-  // Prev/next buttons scroll the strip by one capture; the strip itself
-  // stays a native scroll container (trackpad, touch, shift+wheel, keys).
-  for (const root of document.querySelectorAll<HTMLElement>("[data-shots]")) {
-    const track = root.querySelector<HTMLElement>("[data-shots-track]");
-    if (!track) continue;
-    const step = () => {
-      const item = track.querySelector<HTMLElement>(".shots__item");
-      const gap = Number.parseFloat(getComputedStyle(track).columnGap || "16") || 16;
-      return (item?.getBoundingClientRect().width ?? track.clientWidth * 0.8) + gap;
+  // Scroll-driven horizontal gallery. Progress = how far the pinned box has
+  // travelled through its section; the track translates from "first capture
+  // centered" to "last capture centered". Disabled where the CSS fallback
+  // (phones, reduced motion) takes over.
+  const fallback = window.matchMedia("(max-width: 700px), (prefers-reduced-motion: reduce)");
+  for (const gallery of document.querySelectorAll<HTMLElement>("[data-gallery]")) {
+    const sticky = gallery.querySelector<HTMLElement>("[data-gallery-sticky]");
+    const track = gallery.querySelector<HTMLElement>("[data-gallery-track]");
+    if (!sticky || !track) continue;
+    const header = document.querySelector<HTMLElement>(".site-header");
+    const setHeader = () => gallery.style.setProperty("--header", `${header?.offsetHeight ?? 56}px`);
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      if (fallback.matches) { track.style.transform = ""; return; }
+      const items = track.children;
+      if (items.length === 0) return;
+      const first = items[0] as HTMLElement;
+      const last = items[items.length - 1] as HTMLElement;
+      const rect = gallery.getBoundingClientRect();
+      const stickyTop = Number.parseFloat(getComputedStyle(sticky).top) || 0;
+      const distance = gallery.offsetHeight - sticky.offsetHeight;
+      const progress = distance > 0 ? Math.min(1, Math.max(0, (stickyTop - rect.top) / distance)) : 0;
+      const vw = sticky.clientWidth;
+      const startX = (vw - first.offsetWidth) / 2;
+      const endX = (vw - last.offsetWidth) / 2 - last.offsetLeft;
+      track.style.transform = `translate3d(${startX + (endX - startX) * progress}px, 0, 0)`;
     };
-    root.querySelector("[data-shots-prev]")?.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
-    root.querySelector("[data-shots-next]")?.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
+    setHeader();
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", () => { setHeader(); schedule(); });
+    fallback.addEventListener("change", schedule);
   }
 </script>
