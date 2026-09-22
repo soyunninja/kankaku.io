@@ -27,11 +27,11 @@ const steps = [
 ];
 
 const features: { icon: IconName; title: string; line: string }[] = [
-  { icon: "code", title: t("home.feature1Title"), line: t("home.feature1Line") },
-  { icon: "link", title: t("home.feature2Title"), line: t("home.feature2Line") },
-  { icon: "shield", title: t("home.feature3Title"), line: t("home.feature3Line") },
-  { icon: "database", title: t("home.feature4Title"), line: t("home.feature4Line") },
-  { icon: "cog", title: t("home.feature5Title"), line: t("home.feature5Line") },
+  { icon: "briefcase", title: t("home.feature1Title"), line: t("home.feature1Line") },
+  { icon: "clock", title: t("home.feature2Title"), line: t("home.feature2Line") },
+  { icon: "folder", title: t("home.feature3Title"), line: t("home.feature3Line") },
+  { icon: "link", title: t("home.feature4Title"), line: t("home.feature4Line") },
+  { icon: "database", title: t("home.feature5Title"), line: t("home.feature5Line") },
   { icon: "download", title: t("home.feature6Title"), line: t("home.feature6Line") },
 ];
 ---
@@ -77,6 +77,12 @@ const features: { icon: IconName; title: string; line: string }[] = [
         ))
       }
     </div>
+  </section>
+
+  <!-- For whom -->
+  <section class="container section">
+    <h2 class="section__title">{t("home.forWhomTitle")}</h2>
+    <p class="section__lede">{t("home.forWhomLine")}</p>
   </section>
 
   <!-- Feature grid -->
