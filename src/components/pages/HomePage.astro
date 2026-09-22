@@ -269,8 +269,9 @@ const features: { icon: IconName; title: string; line: string }[] = [
   }
   .gallery {
     --header: 3.5rem;
-    /* Pinned box: 70% of the viewport, capped by what fits under the header. */
-    --pin: min(70vh, calc(100vh - var(--header) - env(safe-area-inset-top, 0px)));
+    /* Pinned box: the whole viewport under the header, so the captures sit
+       centered on screen; the captures themselves are capped at 68vh. */
+    --pin: calc(100vh - var(--header) - env(safe-area-inset-top, 0px));
     height: calc((var(--n) - 1) * 60vh + var(--pin));
   }
   .gallery__sticky {
@@ -284,7 +285,7 @@ const features: { icon: IconName; title: string; line: string }[] = [
   .gallery__track {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 0.75rem;
     will-change: transform;
   }
   .gallery__item {
@@ -297,7 +298,7 @@ const features: { icon: IconName; title: string; line: string }[] = [
   .gallery__item :global(.screenshot img) {
     width: 100%;
     height: auto;
-    max-height: calc(var(--pin) - 2rem);
+    max-height: 68vh;
     object-fit: contain;
     /* The captures are macOS window shots: a 25px (3%) black band above
        the window and a hairline of frame around it. Clip it away so the
