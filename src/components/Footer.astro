@@ -15,8 +15,17 @@ const t = useTranslations(locale);
     <span>{t("footer.license")}</span>
     <a href={`https://www.npmjs.com/package/${KANKAKU.npmPackage}`}>{t("footer.npm")}</a>
     <a href={KANKAKU.repo}><NerdIcon name="github" /> GitHub</a>
-    {locale === "ja" && <span class="site-footer__note">{t("footer.jaDisclaimer")}</span>}
   </div>
+  <div class="container site-footer__row">
+    <span>
+      {t("footer.creditPrefix")}<a href="https://gentlemanprogramming.com" target="_blank" rel="noopener noreferrer">{t("footer.creditStack")}</a>{t("footer.creditMiddle")}<a href="https://github.com/Gentleman-Programming/gentle-ai" target="_blank" rel="noopener noreferrer">{t("footer.creditTool")}</a>{t("footer.creditLove")}
+    </span>
+  </div>
+  {locale === "ja" && (
+    <div class="container site-footer__row">
+      <span class="site-footer__note">{t("footer.jaDisclaimer")}</span>
+    </div>
+  )}
 </footer>
 
 <style>
@@ -33,6 +42,9 @@ const t = useTranslations(locale);
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
+  }
+  .site-footer__row + .site-footer__row {
+    margin-top: 0.5rem;
   }
   .site-footer__row a {
     color: var(--muted-foreground);
