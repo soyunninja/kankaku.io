@@ -7,6 +7,7 @@ order: 1
 
 import EnvTable from "../../../components/EnvTable.astro";
 import GuideToc from "../../../components/GuideToc.astro";
+import InstallCommand from "../../../components/InstallCommand.astro";
 
 <GuideToc
   locale="en"
@@ -23,11 +24,9 @@ import GuideToc from "../../../components/GuideToc.astro";
 
 <h2 id="install">Install</h2>
 
-```
-pi install npm:kankaku
-```
+<InstallCommand locale="en" variant="doc" />
 
-Also: `pi install git:github.com/soyunninja/kankaku` (add `@v0.5.0` to pin), or `pi install /local/path`, no copy. Try without installing: `pi -e /local/path`.
+Also: `pi install git:github.com/soyunninja/kankaku` (add `@v0.5.0` to pin), or `pi install /local/path`, no copy. Try without installing: `pi -e /local/path`. With gentle-shell, these same commands are `gentle-shell install …`.
 
 <h2 id="first-session">Your first session</h2>
 

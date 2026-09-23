@@ -7,6 +7,7 @@ order: 1
 
 import EnvTable from "../../../components/EnvTable.astro";
 import GuideToc from "../../../components/GuideToc.astro";
+import InstallCommand from "../../../components/InstallCommand.astro";
 
 <GuideToc
   locale="ja"
@@ -23,11 +24,9 @@ import GuideToc from "../../../components/GuideToc.astro";
 
 <h2 id="install">インストール</h2>
 
-```
-pi install npm:kankaku
-```
+<InstallCommand locale="ja" variant="doc" />
 
-他の方法: `pi install git:github.com/soyunninja/kankaku`（`@v0.5.0`でバージョン固定）、または`pi install /ローカルパス`（コピーなし）。試すだけなら: `pi -e /ローカルパス`。
+他の方法: `pi install git:github.com/soyunninja/kankaku`（`@v0.5.0`でバージョン固定）、または`pi install /ローカルパス`（コピーなし）。試すだけなら: `pi -e /ローカルパス`。gentle-shellの場合、同じコマンドは`gentle-shell install …`になります。
 
 <h2 id="first-session">最初のセッション</h2>
 

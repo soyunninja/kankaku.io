@@ -12,6 +12,12 @@ export const KANKAKU = {
   homepage: "https://github.com/soyunninja/kankaku#readme",
 };
 
+/** The npm spec every `<tool> install` command installs — single source for
+ * the hero, the bottom Install section and the guide's install doc section
+ * (see InstallCommand.astro, which builds "pi install <this>" and
+ * "gentle-shell install <this>" from it). */
+export const INSTALL_PACKAGE = "npm:kankaku";
+
 export const LOCALES = ["en", "es", "ja"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";

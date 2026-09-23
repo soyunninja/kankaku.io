@@ -83,6 +83,52 @@ for (const locale of LOCALES) {
   });
 }
 
+test.describe("install command switcher (InstallCommand)", () => {
+  test("defaults to the pi tab and shows the pi install command", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator('[data-install-tab="pi"]').first()).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator('[data-install-tab="gentle-shell"]').first()).toHaveAttribute("aria-selected", "false");
+    await expect(page.locator("[data-install-command-text]").first()).toHaveText("pi install npm:kankaku");
+    await expect(page.locator("[data-install-hint]").first()).toBeHidden();
+  });
+
+  test("clicking gentle-shell switches the command in both the hero and the Install section, and shows the hint", async ({ page }) => {
+    await page.goto("/");
+    const roots = page.locator("[data-install-command]");
+    await expect(roots).toHaveCount(2); // hero + bottom "Install" section
+
+    await page.locator('[data-install-tab="gentle-shell"]').first().click();
+
+    const codeBlocks = page.locator("[data-install-command-text]");
+    await expect(codeBlocks).toHaveCount(2);
+    await expect(codeBlocks.nth(0)).toHaveText("gentle-shell install npm:kankaku");
+    await expect(codeBlocks.nth(1)).toHaveText("gentle-shell install npm:kankaku");
+
+    const hints = page.locator("[data-install-hint]");
+    await expect(hints.nth(0)).toBeVisible();
+    await expect(hints.nth(1)).toBeVisible();
+  });
+
+  test("the copy button then copies the gentle-shell command", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.goto("/");
+    await page.locator('[data-install-tab="gentle-shell"]').first().click();
+    const btn = page.locator("[data-install-command] [data-copy-btn]").first();
+    await expect(btn).toHaveAttribute("data-copy-text", "gentle-shell install npm:kankaku");
+    await btn.click();
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clipboardText).toBe("gentle-shell install npm:kankaku");
+  });
+
+  test("the choice persists across reload", async ({ page }) => {
+    await page.goto("/");
+    await page.locator('[data-install-tab="gentle-shell"]').first().click();
+    await page.reload();
+    await expect(page.locator('[data-install-tab="gentle-shell"]').first()).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator("[data-install-command-text]").first()).toHaveText("gentle-shell install npm:kankaku");
+  });
+});
+
 test("404 page renders for an unknown route", async ({ page }) => {
   const response = await page.goto("/this-route-does-not-exist");
   expect(response?.status()).toBe(404);

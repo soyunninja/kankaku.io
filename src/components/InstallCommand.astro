@@ -1,0 +1,185 @@
+---
+import { useTranslations, type Locale } from "../i18n/utils";
+import CopyButton from "./CopyButton.astro";
+import { INSTALL_PACKAGE } from "../consts";
+
+interface Props {
+  locale: Locale;
+  /** Spacing only — no visual/behavioral difference otherwise. */
+  variant?: "hero" | "section" | "doc";
+}
+const { locale, variant = "section" } = Astro.props;
+const t = useTranslations(locale);
+
+/** "pi" is the default (first) tab; "gentle-shell" is pi's own launcher,
+ * which runs an isolated pi of its own — see InstallCommand's hint. */
+const TOOLS = ["pi", "gentle-shell"] as const;
+const piCommand = `pi install ${INSTALL_PACKAGE}`;
+
+// One id per instance (several InstallCommand instances render on a single
+// page — hero, the bottom Install section, and the guide doc — and the
+// dedup'd module script below must be able to tell each root's tabs/panel
+// apart while still keeping every instance in sync).
+const uid = Math.random().toString(36).slice(2, 9);
+---
+
+<div class={`install-command install-command--${variant}`} data-install-command data-install-package={INSTALL_PACKAGE}>
+  <span id={`install-tabs-label-${uid}`} class="visually-hidden">{t("common.installWith")}</span>
+  <div class="install-command__tabs" role="tablist" aria-labelledby={`install-tabs-label-${uid}`}>
+    {
+      TOOLS.map((tool, i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`install-tab-${tool}-${uid}`}
+          aria-selected={i === 0 ? "true" : "false"}
+          aria-controls={`install-panel-${uid}`}
+          tabindex={i === 0 ? 0 : -1}
+          data-install-tab={tool}
+        >
+          {tool}
+        </button>
+      ))
+    }
+  </div>
+  <div
+    id={`install-panel-${uid}`}
+    class="cmd-block install-command__block"
+    role="tabpanel"
+    aria-labelledby={`install-tab-${TOOLS[0]}-${uid}`}
+    data-install-panel
+  >
+    <div class="cmd-block__bar">
+      <span class="cmd-block__dots"><span></span><span></span><span></span></span>
+      <span class="cmd-block__label">shell</span>
+      <CopyButton text={piCommand} locale={locale} />
+    </div>
+    <pre><code data-install-command-text>{piCommand}</code></pre>
+  </div>
+  <p class="install-command__hint" data-install-hint hidden>{t("common.gentleShellHint")}</p>
+</div>
+
+<style>
+  .install-command--hero {
+    max-width: 30rem;
+  }
+  .install-command--doc {
+    margin-block: 1.5rem;
+  }
+  .install-command__tabs {
+    display: inline-flex;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+  }
+  .install-command__tabs [role="tab"] {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: transparent;
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+  }
+  .install-command__tabs [role="tab"][aria-selected="true"] {
+    color: var(--foreground);
+    background: var(--muted);
+    border-color: var(--primary);
+  }
+  .install-command__hint {
+    margin: 0.6rem 0 0;
+    font-size: 0.85rem;
+    color: var(--muted-foreground);
+  }
+</style>
+
+<script>
+  type ToolId = "pi" | "gentle-shell";
+  const STORAGE_KEY = "kankaku-install-tool";
+
+  function isToolId(value: string | undefined): value is ToolId {
+    return value === "pi" || value === "gentle-shell";
+  }
+
+  function readStoredTool(): ToolId | null {
+    try {
+      const value = localStorage.getItem(STORAGE_KEY);
+      return isToolId(value ?? undefined) ? (value as ToolId) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeStoredTool(tool: ToolId) {
+    try {
+      localStorage.setItem(STORAGE_KEY, tool);
+    } catch {
+      // Private mode / blocked storage: the choice just won't persist.
+    }
+  }
+
+  function allRoots(): HTMLElement[] {
+    return Array.from(document.querySelectorAll<HTMLElement>("[data-install-command]"));
+  }
+
+  function applyToolToRoot(root: HTMLElement, tool: ToolId) {
+    const pkg = root.dataset.installPackage;
+    if (!pkg) return;
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-install-tab]"));
+    const activeTab = tabs.find((tab) => tab.dataset.installTab === tool);
+    if (!activeTab) return;
+
+    for (const tab of tabs) {
+      const isActive = tab === activeTab;
+      tab.setAttribute("aria-selected", isActive ? "true" : "false");
+      tab.tabIndex = isActive ? 0 : -1;
+    }
+
+    const command = `${tool} install ${pkg}`;
+    const codeEl = root.querySelector<HTMLElement>("[data-install-command-text]");
+    if (codeEl) codeEl.textContent = command;
+
+    const copyBtn = root.querySelector<HTMLButtonElement>("[data-copy-btn]");
+    if (copyBtn) copyBtn.dataset.copyText = command;
+
+    const panel = root.querySelector<HTMLElement>("[data-install-panel]");
+    if (panel) panel.setAttribute("aria-labelledby", activeTab.id);
+
+    const hint = root.querySelector<HTMLElement>("[data-install-hint]");
+    if (hint) hint.hidden = tool !== "gentle-shell";
+  }
+
+  function setToolEverywhere(tool: ToolId, persist: boolean) {
+    for (const root of allRoots()) applyToolToRoot(root, tool);
+    if (persist) writeStoredTool(tool);
+  }
+
+  const stored = readStoredTool();
+  if (stored) setToolEverywhere(stored, false);
+
+  document.addEventListener("click", (event) => {
+    const tab = (event.target as HTMLElement)?.closest<HTMLButtonElement>("[data-install-tab]");
+    if (!tab) return;
+    const tool = tab.dataset.installTab;
+    if (!isToolId(tool)) return;
+    setToolEverywhere(tool, true);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    const tab = (event.target as HTMLElement)?.closest<HTMLButtonElement>("[data-install-tab]");
+    if (!tab) return;
+    const root = tab.closest<HTMLElement>("[data-install-command]");
+    if (!root) return;
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-install-tab]"));
+    const index = tabs.indexOf(tab);
+    if (index === -1) return;
+    const nextIndex = event.key === "ArrowRight" ? (index + 1) % tabs.length : (index - 1 + tabs.length) % tabs.length;
+    const next = tabs[nextIndex];
+    const tool = next.dataset.installTab;
+    if (!isToolId(tool)) return;
+    event.preventDefault();
+    setToolEverywhere(tool, true);
+    next.focus();
+  });
+</script>
