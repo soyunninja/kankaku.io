@@ -69,6 +69,19 @@ for (const locale of LOCALES) {
       expect(clipboardText).toBe(expectedText);
     });
 
+    test(`demo section shows the live demo URL and login, and the hub is never "coming soon"`, async ({ page }) => {
+      await page.goto(locale.home);
+      const demoSection = page.locator("#demo");
+      await expect(demoSection.locator('a[href="https://demo.kankaku.io"]').first()).toBeVisible();
+      await expect(demoSection).toContainText("demo@kankaku.io");
+      await expect(demoSection).toContainText("demokankaku");
+
+      const bodyText = await page.locator("body").innerText();
+      for (const phrase of ["Coming soon", "Próximamente", "近日公開"]) {
+        expect(bodyText, `found "${phrase}" on ${locale.home}`).not.toContain(phrase);
+      }
+    });
+
     for (const width of [390, 768, 1440]) {
       test(`no horizontal overflow at ${width}px`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });

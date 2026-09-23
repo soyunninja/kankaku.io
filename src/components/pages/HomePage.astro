@@ -5,8 +5,9 @@ import TerminalHero from "../TerminalHero.astro";
 import ScreenshotFigure from "../ScreenshotFigure.astro";
 import NerdIcon, { type IconName } from "../icons/NerdIcon.astro";
 import InstallCommand from "../InstallCommand.astro";
+import CopyButton from "../CopyButton.astro";
 import { localizePath, useTranslations, type Locale } from "../../i18n/utils";
-import { KANKAKU, SITE_URL } from "../../consts";
+import { DEMO, HUB_REPO, KANKAKU, SITE_URL } from "../../consts";
 
 import hubDashboard from "../../assets/screenshots/hub-dashboard-dark.webp";
 import hubEntriesSessions from "../../assets/screenshots/hub-entries-sessions-dark.webp";
@@ -86,6 +87,9 @@ const features: { icon: IconName; title: string; line: string }[] = [
         </a>
         <a class="btn btn--ghost" href={localizePath("/docs/commands", locale)}>
           <NerdIcon name="terminal" /> {t("home.heroCtaCommands")}
+        </a>
+        <a class="btn btn--ghost" href="#demo">
+          <NerdIcon name="database" /> {t("home.heroCtaDemo")}
         </a>
       </div>
     </div>
@@ -175,15 +179,42 @@ const features: { icon: IconName; title: string; line: string }[] = [
     </p>
   </section>
 
-  <!-- Status strip: one row, two states -->
-  <section class="container section">
-    <div class="status-strip">
-      <span class="status-strip__item">
-        <span class="badge badge--done"><NerdIcon name="check" /> {t("home.statusAvailableLabel")}</span> {t("home.statusAvailable")}
-      </span>
-      <span class="status-strip__item">
-        <span class="badge badge--soon"><NerdIcon name="warning" /> {t("home.statusSoonLabel")}</span> {t("home.statusSoon")}
-      </span>
+  <!-- Demo: the public, read-only hub demo (fictional data, viewer login). -->
+  <section id="demo" class="container section">
+    <p class="badge-line">
+      <span class="badge badge--done"><NerdIcon name="check" /> {t("home.statusAvailableLabel")}</span> {t("home.statusAvailable")}
+    </p>
+    <h2 class="section__title">{t("home.demoTitle")}</h2>
+    <p class="section__lede">{t("home.demoLede")}</p>
+    <dl class="demo-creds">
+      <div class="demo-creds__row">
+        <dt>{t("home.demoUrlLabel")}</dt>
+        <dd>
+          <a href={DEMO.url} target="_blank" rel="noopener noreferrer"><code>{DEMO.url}</code></a>
+        </dd>
+      </div>
+      <div class="demo-creds__row">
+        <dt>{t("home.demoEmailLabel")}</dt>
+        <dd>
+          <code>{DEMO.email}</code>
+          <CopyButton text={DEMO.email} locale={locale} />
+        </dd>
+      </div>
+      <div class="demo-creds__row">
+        <dt>{t("home.demoPasswordLabel")}</dt>
+        <dd>
+          <code>{DEMO.password}</code>
+          <CopyButton text={DEMO.password} locale={locale} />
+        </dd>
+      </div>
+    </dl>
+    <div class="hero__ctas">
+      <a class="btn btn--primary" href={DEMO.url} target="_blank" rel="noopener noreferrer">
+        <NerdIcon name="rocket" /> {t("home.demoCta")}
+      </a>
+      <a class="btn btn--ghost" href={HUB_REPO} target="_blank" rel="noopener noreferrer">
+        <NerdIcon name="link" /> {t("home.demoRepo")}
+      </a>
     </div>
   </section>
 
@@ -260,17 +291,47 @@ const features: { icon: IconName; title: string; line: string }[] = [
     align-items: baseline;
     gap: 0.6rem;
   }
-  .status-strip {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-  }
-  .status-strip__item {
+  .badge-line {
     display: inline-flex;
     align-items: baseline;
     gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  .demo-creds {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0 0 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    max-width: 40rem;
+  }
+  .demo-creds__row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  .demo-creds__row dt {
+    flex: 0 0 6rem;
+    color: var(--muted-foreground);
+  }
+  .demo-creds__row dd {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  @media (max-width: 500px) {
+    .demo-creds__row {
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .demo-creds__row dt {
+      flex-basis: auto;
+    }
   }
 
   @media (max-width: 860px) {

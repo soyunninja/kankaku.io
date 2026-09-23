@@ -169,11 +169,6 @@
   background: var(--accent);
   border-color: transparent;
 }
-.badge--soon {
-  color: var(--warning-foreground);
-  background: var(--warning);
-  border-color: transparent;
-}
 .badge--done {
   color: var(--success-foreground);
   background: var(--success);

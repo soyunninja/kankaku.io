@@ -12,6 +12,17 @@ export const KANKAKU = {
   homepage: "https://github.com/soyunninja/kankaku#readme",
 };
 
+/** The public, read-only demo of the hub — fictional data, viewer login only.
+ * Keep in sync with the actual demo deployment; never invent credentials. */
+export const DEMO = {
+  url: "https://demo.kankaku.io",
+  email: "demo@kankaku.io",
+  password: "demokankaku",
+};
+
+/** The hub's own source repository (separate from the kankaku extension repo above). */
+export const HUB_REPO = "https://github.com/soyunninja/kankaku_hub";
+
 /** The npm spec every `<tool> install` command installs — single source for
  * the hero, the bottom Install section and the guide's install doc section
  * (see InstallCommand.astro, which builds "pi install <this>" and

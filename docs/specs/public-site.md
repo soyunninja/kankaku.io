@@ -41,10 +41,12 @@ is an authenticated dashboard over one owner's real data (see ADR 0025).
    SHALL make no request to Google Fonts or any other third-party font
    host, and SHALL work with no network access after the initial page load
    (a font, once cached).
-7. `SITE-REQ-007` — Every claim of feature availability SHALL be labeled
-   honestly: shipped (on npm) vs. on an unreleased branch ("coming soon")
-   vs. planned. The site SHALL NOT present hub integration features
-   (catalog, sync, backfill) as available today.
+7. `SITE-REQ-007` — The Home page SHALL present the hub's public, read-only
+   demo access: its URL, the viewer login (email and password), and that
+   its data is fictional and read-only. The demo credentials SHALL be
+   correct and SHALL NOT claim the data resets. The demo section SHALL
+   also link to the hub's open-source repository. The site SHALL NOT claim
+   the hub is "coming soon" or otherwise unavailable.
 8. `SITE-REQ-008` — The term "wall-clock time" SHALL appear at most once
    per locale (in the Guide), used verbatim (not translated) in all three
    locales; no page SHALL use a literal Spanish/Japanese calque of it
@@ -82,11 +84,11 @@ is an authenticated dashboard over one owner's real data (see ADR 0025).
 - **When** the page's `<head>` inline script runs, before any CSS depending on `[data-theme]` is used for layout
 - **Then** `<html data-theme="light">` is set immediately, with no visible flash of the dark default
 
-### Scenario: unreleased features are never presented as available (`SITE-REQ-007`)
+### Scenario: the hub demo is presented as available today (`SITE-REQ-007`)
 
-- **Given** the hub integration (catalog, sync, backfill) lives only on the `feat/pocketbase-hub` branch, not on npm
-- **When** the Home page's status strip and the Guide's "Connect the hub" section render
-- **Then** both are labeled "coming soon" / "unreleased branch", never presented as installable today
+- **Given** the hub has a live, public, read-only demo at `https://demo.kankaku.io`
+- **When** the Home page's Demo section and the Guide's "Connect the hub" section render
+- **Then** both show the demo URL, the viewer login (`demo@kankaku.io` / `demokankaku`), and note the data is fictional and read-only, with a link to the hub's open-source repository — the site never says the hub is "coming soon"
 
 ### Scenario: accessibility gate (`SITE-REQ-010`)
 
@@ -136,7 +138,7 @@ is an authenticated dashboard over one owner's real data (see ADR 0025).
 | `SITE-REQ-004` | `site/src/data/kankaku-commands.ts` (header comment names the source) | covered |
 | `SITE-REQ-005` | `site/src/components/ThemeToggle.astro`, `site/src/layouts/BaseLayout.astro` inline script | covered |
 | `SITE-REQ-006` | `site/scripts/build-font.mjs`, `site/public/fonts/` | covered |
-| `SITE-REQ-007` | `site/src/i18n/ui.ts` (`common.comingSoon`), Home status strip, Guide "Connect the hub" | covered |
+| `SITE-REQ-007` | `site/src/consts.ts` (`DEMO`, `HUB_REPO`), `site/src/components/pages/HomePage.astro` (Demo section), Guide "Connect the hub" (all locales), `site/tests/smoke.spec.ts` | covered |
 | `SITE-REQ-008` | `site/src/content/docs/*/guide.mdx` (single mention each) | covered |
 | `SITE-REQ-009` | `site/src/components/pages/HomePage.astro` (`home.screenshotsLine`, all locales) | covered |
 | `SITE-REQ-010` | `site/tests/a11y.spec.ts` | covered |
