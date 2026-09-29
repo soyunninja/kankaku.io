@@ -27,7 +27,7 @@ Solo la extensión de pi:
 
 `pi install npm:kankaku` sigue funcionando para las instalaciones existentes, pero también incorpora las dependencias de la CLI a pi; nunca mantengas ambas fuentes en la misma configuración, o la extensión se cargará dos veces y duplicará cada medición.
 
-También: `pi install git:github.com/soyunninja/kankaku` (añade `@v1.2.0` para fijar la versión actual; las etiquetas v0.9.0 a v0.12.0 no se pueden cargar desde git), o `pi install /absolute/path/to/kankaku/packages/pi`, sin copiar. Prueba sin instalar: `pi -e /absolute/path/to/kankaku/packages/pi`. Con gentle-shell, estos mismos comandos de instalación usan `gentle-shell install …`.
+También: `pi install git:github.com/soyunninja/kankaku` (añade `@v1.3.0` para fijar la versión actual; las etiquetas v0.9.0 a v0.12.0 no se pueden cargar desde git), o `pi install /absolute/path/to/kankaku/packages/pi`, sin copiar. Prueba sin instalar: `pi -e /absolute/path/to/kankaku/packages/pi`. Con gentle-shell, estos mismos comandos de instalación usan `gentle-shell install …`.
 
 <h2 id="first-session">Tu primera sesión</h2>
 
@@ -51,7 +51,9 @@ En la TUI de pi, `/kankaku` abre un panel con marco. El título (`>_ kankaku · 
 
 Marca Claude Code en `kankaku setup`. No necesitas clonar el repositorio ni usar `--plugin-dir`. El asistente incorpora `statusLine` (que informa del coste por prompt) y los hooks de los eventos declarados en `~/.claude/settings.json` sin alterar otras claves ni hooks. Instala los comandos de usuario en `~/.claude/commands/kankaku/`. Repite la configuración si cambia la ruta de instalación, por ejemplo, al cambiar de versión de Node. No inicies también Claude Code con `--plugin-dir`: los hooks se ejecutarían dos veces y duplicarían los registros.
 
-Cada prompt produce un registro con el mismo formato que pi: tiempo total, espera por una pregunta o permiso, tiempo de trabajo (total menos espera) y coste. El registro identifica al agente que midió (`claude-code`), el plugin (`kankaku-claude`) y su versión, incluso si lo sincroniza la CLI. Cliente y proyecto se resuelven primero desde el `config.json` del proyecto y luego desde las rutas del repositorio en el catálogo del hub guardado en caché; los hooks no usan la red. Un prompt interrumpido termina en su última actividad registrada. El coste es la diferencia entre los totales acumulados de la sesión en dos cierres consecutivos; cada prompt comienza donde terminó el anterior, así que lo gastado entre prompts se asigna al siguiente registro. Una ejecución sin interfaz (`claude -p`) no tiene statusline y, por tanto, sus registros no incluyen coste.
+Cada prompt produce un registro con el mismo formato que pi: tiempo total, espera por una pregunta o permiso, tiempo de trabajo (total menos espera), tokens y coste. El registro identifica al agente que midió (`claude-code`), el plugin (`kankaku-claude`), su versión y la versión de Claude Code, incluso si lo sincroniza la CLI. Cliente y proyecto se resuelven primero desde el `config.json` del proyecto y luego desde las rutas del repositorio en el catálogo del hub guardado en caché; los hooks no usan la red. Un prompt interrumpido termina en su última actividad registrada. El coste es la diferencia entre los totales acumulados de la sesión en dos cierres consecutivos; cada prompt comienza donde terminó el anterior, así que lo gastado entre prompts se asigna al siguiente registro. Los tokens incluyen el trabajo de los subagentes, incluso los gastados entre prompts, que se asignan al siguiente registro. Una ejecución sin interfaz (`claude -p`) no tiene statusline; su coste se lee del propio registro de sesión de Claude Code cuando termina la sesión.
+
+kankaku lee esos datos del registro de sesión que Claude Code guarda en disco: números de tokens, versión de Claude Code y si la sesión es interactiva o sin interfaz. No lee ningún prompt ni ninguna respuesta, ni envía nada a ningún lugar por ello.
 
 | Comando | Función | Notas |
 |---|---|---|
@@ -64,7 +66,7 @@ Cada prompt produce un registro con el mismo formato que pi: tiempo total, esper
 | `/kankaku:doctor` | Diagnóstico de solo lectura de archivos del plugin, sesiones, coste, sincronización, destino y tarea resueltos. | No contacta el hub ni muestra credenciales. |
 | `/kankaku:setup` | Imprime un fragmento `statusLine` para `~/.claude/settings.json`. | Solo se necesita sin la CLI de `kankaku`; `kankaku setup` ya lo configura. |
 
-Claude Code no registra números de tokens, así que no hay `cache hit`. El coste por prompt es una parte del total de la sesión obtenido de statusline. El tiempo de los subagentes en segundo plano no se mide por separado; la espera de un permiso termina con el siguiente evento del hook, no con el clic. Todavía no se puede cambiar el cliente ni el proyecto desde Claude Code.
+Los números de tokens, y con ellos `cache hit`, proceden del registro de sesión de Claude Code, un formato interno que no es una interfaz documentada: si una actualización de Claude Code lo cambia, se seguirán escribiendo registros, pero sin tokens (y, en las ejecuciones sin interfaz, sin coste), hasta que kankaku se actualice. El coste por prompt es una parte del total de la sesión obtenido de statusline. El tiempo de los subagentes en segundo plano no se mide por separado; la espera de un permiso termina con el siguiente evento del hook, no con el clic. Todavía no se puede cambiar el cliente ni el proyecto desde Claude Code.
 
 <h2 id="numbers">Tus números</h2>
 
@@ -75,7 +77,7 @@ Claude Code no registra números de tokens, así que no hay `cache hit`. El cost
 /kankaku export     # csv o json
 ```
 
-Las líneas de informe con tokens registrados terminan en `cache hit NN%`: la proporción de tokens de entrada del prompt servidos desde la caché del proveedor, `cacheRead / (input + cacheRead + cacheWrite)`. Si no hay tokens registrados, se omite el sufijo; no aparece `0%`. Por ejemplo: `orchestrator: work 41m00s, waiting 0m00s, 1 record(s), $0.82, cache hit 68%`. También se aplica a las líneas de tareas, clientes y proyectos de pi. Claude Code no registra tokens, así que sus líneas no muestran cache hit.
+Las líneas de informe con tokens registrados terminan en `cache hit NN%`: la proporción de tokens de entrada del prompt servidos desde la caché del proveedor, `cacheRead / (input + cacheRead + cacheWrite)`. Si no hay tokens registrados, se omite el sufijo; no aparece `0%`. Por ejemplo: `orchestrator: work 41m00s, waiting 0m00s, 1 record(s), $0.82, cache hit 68%`. También se aplica a las líneas de tareas, clientes y proyectos de pi. Desde 1.3.0, los registros de Claude Code también incluyen números de tokens, por lo que sus líneas muestran `cache hit`; los registros escritos con una versión anterior no los tienen.
 
 <h2 id="hub">Conectar el hub (opcional)</h2>
 

@@ -47,7 +47,7 @@ export const ui = {
       gentleShellHint: "gentle-shell usa su propio pi. kankaku se instala ahí con este comando.",
     },
     home: {
-      heroKicker: "pi · Claude Code · CLI · v1.2.0",
+      heroKicker: "pi · Claude Code · CLI · v1.3.0",
       heroLine: "Mide cuánto tiempo trabajó tu agente de IA y cuánto costó, por cliente, proyecto y tarea.",
       heroCtaDocs: "Guía",
       heroCtaCommands: "Comandos",
@@ -144,7 +144,7 @@ export const ui = {
       gentleShellHint: "gentle-shell runs its own pi. Install kankaku there with this command.",
     },
     home: {
-      heroKicker: "pi · Claude Code · CLI · v1.2.0",
+      heroKicker: "pi · Claude Code · CLI · v1.3.0",
       heroLine: "Know how long your agent worked on each client, project and task. And what it cost you.",
       heroCtaDocs: "Guide",
       heroCtaCommands: "Commands",
@@ -241,7 +241,7 @@ export const ui = {
       gentleShellHint: "gentle-shellは独自のpiを使います。このコマンドでそこにkankakuをインストールします。",
     },
     home: {
-      heroKicker: "pi · Claude Code · CLI · v1.2.0",
+      heroKicker: "pi · Claude Code · CLI · v1.3.0",
       heroLine: "エージェントが各クライアント・プロジェクト・タスクにどれだけ作業したかがわかります。かかったコストも。",
       heroCtaDocs: "ガイド",
       heroCtaCommands: "コマンド",

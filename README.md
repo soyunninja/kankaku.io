@@ -1,6 +1,6 @@
 # kankaku site
 
-Public, developer-facing site for **kankaku 1.2.0**: the CLI, pi extension,
+Public, developer-facing site for **kankaku 1.3.0**: the CLI, pi extension,
 Claude Code integration, and optional hub. Astro static output, with three
 locales (en default, es, ja). This is a standalone site project.
 
