@@ -27,7 +27,7 @@ piの拡張機能だけ使う場合:
 
 既存のインストールでは`pi install npm:kankaku`も引き続き動作しますが、CLIの依存パッケージもpiに取り込みます。両方のソースを同じ設定に残さないでください。拡張機能が二重に読み込まれ、すべての測定が重複します。
 
-他の方法: `pi install git:github.com/soyunninja/kankaku`（固定するには`@v1.0.0`以降を指定。v0.9.0～v0.12.0のタグはgitから読み込めません）、または`pi install /absolute/path/to/kankaku/packages/pi`（コピーなし）。インストールせずに試すには`pi -e /absolute/path/to/kankaku/packages/pi`。gentle-shellではインストールコマンドに`gentle-shell install …`を使います。
+他の方法: `pi install git:github.com/soyunninja/kankaku`（現在のバージョンに固定するには`@v1.2.0`を指定。v0.9.0～v0.12.0のタグはgitから読み込めません）、または`pi install /absolute/path/to/kankaku/packages/pi`（コピーなし）。インストールせずに試すには`pi -e /absolute/path/to/kankaku/packages/pi`。gentle-shellではインストールコマンドに`gentle-shell install …`を使います。
 
 <h2 id="first-session">最初のセッション</h2>
 
@@ -51,12 +51,12 @@ piのTUIでは、`/kankaku`で枠付きのパネルが開きます。タイト�
 
 `kankaku setup`でClaude Codeを選びます。リポジトリのクローンも`--plugin-dir`も不要です。セットアップは`~/.claude/settings.json`の他のキーやツールのフックを保ちながら、プロンプトごとのコストを伝える`statusLine`と、プラグインが宣言する各イベントのフックを追加します。ユーザーコマンドは`~/.claude/commands/kankaku/`に設置されます。Node.jsのバージョン変更などでインストール先が変わったら、セットアップを再実行してください。`--plugin-dir`を併用するとフックが二重実行され、記録も重複します。
 
-プロンプトごとにpiと同じ形式の作業ログを記録します。総時間、質問や許可を待った時間、作業時間（総時間から待機を引いた値）、コストです。各記録には測定したエージェント（`claude-code`）、プラグイン（`kankaku-claude`）とそのバージョンが付き、CLIでHubへ同期しても保持されます。顧客と案件はプロジェクトの`config.json`、次にキャッシュ済みHub一覧のリポジトリパスから解決します。フックは通信しません。中断したプロンプトは最後に記録された活動時刻で閉じられます。
+プロンプトごとにpiと同じ形式の作業ログを記録します。総時間、質問や許可を待った時間、作業時間（総時間から待機を引いた値）、コストです。各記録には測定したエージェント（`claude-code`）、プラグイン（`kankaku-claude`）とそのバージョンが付き、CLIでHubへ同期しても保持されます。顧客と案件はプロジェクトの`config.json`、次にキャッシュ済みHub一覧のリポジトリパスから解決します。フックは通信しません。中断したプロンプトは最後に記録された活動時刻で閉じられます。コストはセッションの累計額が2回の確定時点でどれだけ増えたかで計算します。各プロンプトは前のプロンプトの終了時点を起点にするため、プロンプト間の消費額は次の記録に入ります。ヘッドレス実行（`claude -p`）にはstatuslineがないため、記録にコストは付きません。
 
 | コマンド | 内容 | 補足 |
 |---|---|---|
 | `/kankaku:report` | 日別の最近の作業。プロンプトごとの総時間・待機・作業・コストを表示します。 | 直近7日間。 |
-| `/kankaku:status` | この案件の状態があるセッション。プロセスの稼働、開いたプロンプト、直近のコスト、解決済みの`target:`と`task:`を表示します。 | |
+| `/kankaku:status` | この案件の状態があるセッション。プロセスの稼働、開いたプロンプト、直近のコスト、解決済みの`target:`と`task:`、`recorded $X of $Y`を表示します。差額は`(this prompt so far $R)`、`(pending $P, goes to the next prompt)`、または`(never recorded $Z)`（累計の基準を設定する前の消費額で、後から補えません）として示します。 | |
 | `/kankaku:task [number \| id \| text \| clear]` | 解決済みHub案件の未着手・進行中タスクをセッションに紐付けます。引数なしで番号付き一覧を表示し、直近一覧の番号・Hub ID・一意のタイトル部分で選び、`clear`で解除します。 | Hubが必要です。セッション限りで`config.json`には保存されず、タスクが案件から外れれば解除されます。Hubでの割り当ては行の作成時のみです。 |
 | `/kankaku:sync` | 最近のローカル記録をHubへ同期します。 | 引数なし。既定の対象は直近24時間。 |
 | `/kankaku:sync-all` | 全件同期を要求します。 | |

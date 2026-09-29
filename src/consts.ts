@@ -5,7 +5,7 @@ export const SITE_NAME = "kankaku";
 
 /** kankaku client facts (the three packages share one version) — keep in sync with the kankaku monorepo. Never invent numbers here. */
 export const KANKAKU = {
-  version: "1.0.0",
+  version: "1.2.0",
   npmPackage: "kankaku-pi",
   cliPackage: "kankaku",
   claudePackage: "kankaku-claude",

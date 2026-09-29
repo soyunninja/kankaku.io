@@ -25,17 +25,17 @@ const check = args[0] === "--check";
 // Keep in sync with src/i18n/ui.ts: home.heroKicker and home.heroLine.
 const COPY = {
   es: {
-    kicker: "pi · Claude Code · CLI · v1.0.0",
+    kicker: "pi · Claude Code · CLI · v1.2.0",
     line: "Mide cuánto tiempo trabajó tu agente de IA y cuánto costó, por cliente, proyecto y tarea.",
     prompt: "$ npm install -g kankaku",
   },
   en: {
-    kicker: "pi · Claude Code · CLI · v1.0.0",
+    kicker: "pi · Claude Code · CLI · v1.2.0",
     line: "Know how long your agent worked on each client, project and task. And what it cost you.",
     prompt: "$ npm install -g kankaku",
   },
   ja: {
-    kicker: "pi · Claude Code · CLI · v1.0.0",
+    kicker: "pi · Claude Code · CLI · v1.2.0",
     line: "エージェントが各クライアント・プロジェクト・タスクにどれだけ作業したかがわかります。かかったコストも。",
     prompt: "$ npm install -g kankaku",
   },

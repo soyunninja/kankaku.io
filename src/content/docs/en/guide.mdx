@@ -27,7 +27,7 @@ Only the pi extension:
 
 `pi install npm:kankaku` still works for existing installs, but it also brings the CLI's dependencies into pi; never keep both sources in the same settings, or the extension loads twice and doubles every measurement.
 
-Also: `pi install git:github.com/soyunninja/kankaku` (add `@v1.0.0` or later to pin; tags v0.9.0 through v0.12.0 cannot be loaded from git), or `pi install /absolute/path/to/kankaku/packages/pi`, no copy. Try without installing: `pi -e /absolute/path/to/kankaku/packages/pi`. With gentle-shell, these same install commands use `gentle-shell install …`.
+Also: `pi install git:github.com/soyunninja/kankaku` (add `@v1.2.0` to pin the current version; tags v0.9.0 through v0.12.0 cannot be loaded from git), or `pi install /absolute/path/to/kankaku/packages/pi`, no copy. Try without installing: `pi -e /absolute/path/to/kankaku/packages/pi`. With gentle-shell, these same install commands use `gentle-shell install …`.
 
 <h2 id="first-session">Your first session</h2>
 
@@ -56,12 +56,12 @@ In pi's TUI, `/kankaku` opens a framed panel. Its title (`>_ kankaku · <Screen>
 
 Check Claude Code in `kankaku setup`. No git checkout or `--plugin-dir` flag is needed. Setup merges `statusLine` (which reports per-prompt cost) and the declared event hooks into `~/.claude/settings.json` without disturbing other keys or hooks. It installs user commands under `~/.claude/commands/kankaku/`. Re-run setup if the install path changes, such as after switching Node versions. Do not also launch Claude Code with `--plugin-dir`: hooks would run twice and records would be duplicated.
 
-Each prompt produces a worklog record in the same format as pi: wall time, waiting on a question or permission dialog, work time (wall minus waiting) and cost. The record identifies its measuring agent (`claude-code`), plugin (`kankaku-claude`) and plugin version, even when the CLI syncs it. Client and project resolve from the project's `config.json` first, then from repository paths in the cached hub catalog; hooks do not contact the network. An interrupted prompt closes at its last recorded activity.
+Each prompt produces a worklog record in the same format as pi: wall time, waiting on a question or permission dialog, work time (wall minus waiting) and cost. The record identifies its measuring agent (`claude-code`), plugin (`kankaku-claude`) and plugin version, even when the CLI syncs it. Client and project resolve from the project's `config.json` first, then from repository paths in the cached hub catalog; hooks do not contact the network. An interrupted prompt closes at its last recorded activity. Cost is the difference of the session's running total between two settles, and each prompt starts where the previous one ended, so what the session spends between two prompts goes to the next record. A headless run (`claude -p`) has no statusline and therefore no cost.
 
 | Command | What it does | Notes |
 |---|---|---|
 | `/kankaku:report` | Recent work by day: wall, waiting and work time and cost per prompt. | Last 7 days. |
-| `/kankaku:status` | Sessions with state in this project: live process, open prompt, last cost, resolved `target:` and `task:`. | |
+| `/kankaku:status` | Sessions with state in this project: live process, open prompt, last cost, resolved `target:` and `task:`, and `recorded $X of $Y`, with any difference labeled `(this prompt so far $R)`, `(pending $P, goes to the next prompt)` or `(never recorded $Z)` (spend before a chained baseline that cannot be recovered). | |
 | `/kankaku:task [number \| id \| text \| clear]` | Links this session to an open or doing task in the resolved hub project. No argument lists numbered tasks; choose by last-list number, hub id or unique title fragment; `clear` unlinks. | Hub required. Session-only, not saved in `config.json`; a task outside the resolved project is unlinked. Assignment on the hub happens only at row creation. |
 | `/kankaku:sync` | Syncs recent local records to the hub. | No arguments; default 24-hour window. |
 | `/kankaku:sync-all` | Requests a full sync. | |

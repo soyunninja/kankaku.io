@@ -27,7 +27,7 @@ Solo la extensión de pi:
 
 `pi install npm:kankaku` sigue funcionando para las instalaciones existentes, pero también incorpora las dependencias de la CLI a pi; nunca mantengas ambas fuentes en la misma configuración, o la extensión se cargará dos veces y duplicará cada medición.
 
-También: `pi install git:github.com/soyunninja/kankaku` (añade `@v1.0.0` o posterior para fijar versión; las etiquetas v0.9.0 a v0.12.0 no se pueden cargar desde git), o `pi install /absolute/path/to/kankaku/packages/pi`, sin copiar. Prueba sin instalar: `pi -e /absolute/path/to/kankaku/packages/pi`. Con gentle-shell, estos mismos comandos de instalación usan `gentle-shell install …`.
+También: `pi install git:github.com/soyunninja/kankaku` (añade `@v1.2.0` para fijar la versión actual; las etiquetas v0.9.0 a v0.12.0 no se pueden cargar desde git), o `pi install /absolute/path/to/kankaku/packages/pi`, sin copiar. Prueba sin instalar: `pi -e /absolute/path/to/kankaku/packages/pi`. Con gentle-shell, estos mismos comandos de instalación usan `gentle-shell install …`.
 
 <h2 id="first-session">Tu primera sesión</h2>
 
@@ -51,12 +51,12 @@ En la TUI de pi, `/kankaku` abre un panel con marco. El título (`>_ kankaku · 
 
 Marca Claude Code en `kankaku setup`. No necesitas clonar el repositorio ni usar `--plugin-dir`. El asistente incorpora `statusLine` (que informa del coste por prompt) y los hooks de los eventos declarados en `~/.claude/settings.json` sin alterar otras claves ni hooks. Instala los comandos de usuario en `~/.claude/commands/kankaku/`. Repite la configuración si cambia la ruta de instalación, por ejemplo, al cambiar de versión de Node. No inicies también Claude Code con `--plugin-dir`: los hooks se ejecutarían dos veces y duplicarían los registros.
 
-Cada prompt produce un registro con el mismo formato que pi: tiempo total, espera por una pregunta o permiso, tiempo de trabajo (total menos espera) y coste. El registro identifica al agente que midió (`claude-code`), el plugin (`kankaku-claude`) y su versión, incluso si lo sincroniza la CLI. Cliente y proyecto se resuelven primero desde el `config.json` del proyecto y luego desde las rutas del repositorio en el catálogo del hub guardado en caché; los hooks no usan la red. Un prompt interrumpido termina en su última actividad registrada.
+Cada prompt produce un registro con el mismo formato que pi: tiempo total, espera por una pregunta o permiso, tiempo de trabajo (total menos espera) y coste. El registro identifica al agente que midió (`claude-code`), el plugin (`kankaku-claude`) y su versión, incluso si lo sincroniza la CLI. Cliente y proyecto se resuelven primero desde el `config.json` del proyecto y luego desde las rutas del repositorio en el catálogo del hub guardado en caché; los hooks no usan la red. Un prompt interrumpido termina en su última actividad registrada. El coste es la diferencia entre los totales acumulados de la sesión en dos cierres consecutivos; cada prompt comienza donde terminó el anterior, así que lo gastado entre prompts se asigna al siguiente registro. Una ejecución sin interfaz (`claude -p`) no tiene statusline y, por tanto, sus registros no incluyen coste.
 
 | Comando | Función | Notas |
 |---|---|---|
 | `/kankaku:report` | Trabajo reciente por día: tiempo total, espera, trabajo y coste por prompt. | Últimos 7 días. |
-| `/kankaku:status` | Sesiones con estado en este proyecto: proceso activo, prompt abierto, último coste y líneas `target:` y `task:`. | |
+| `/kankaku:status` | Sesiones con estado en este proyecto: proceso activo, prompt abierto, último coste, líneas `target:` y `task:` y `recorded $X of $Y`, con la diferencia identificada como `(this prompt so far $R)`, `(pending $P, goes to the next prompt)` o `(never recorded $Z)` (gasto anterior a la referencia acumulada que no se puede recuperar). | |
 | `/kankaku:task [number \| id \| text \| clear]` | Vincula la sesión a una tarea abierta o en curso del proyecto resuelto en el hub. Sin argumento lista tareas numeradas; elige por número de la última lista, ID del hub o fragmento único del título; `clear` desvincula. | Requiere hub. Solo dura la sesión; no se guarda en `config.json`. Se desvincula si la tarea deja de pertenecer al proyecto. La asignación en el hub solo se hace al crear la fila. |
 | `/kankaku:sync` | Sincroniza registros locales recientes con el hub. | Sin argumentos; ventana predeterminada de 24 horas. |
 | `/kankaku:sync-all` | Solicita una sincronización completa. | |

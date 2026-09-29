@@ -28,7 +28,7 @@ Node.js 24以降が必要です。以下のローカルHubはmacOSとLinuxに対
 
 <h2 id="setup">セットアップ</h2>
 
-ターミナルで`kankaku setup`を実行すると、フルスクリーンのウィザードが開きます。Agents、Hub、Roots、Review、Apply、Doneの順に進みます。Agentsには各エージェントの設定状態とパスが表示され、設定済みの項目を外すとそのエージェントからkankakuの設定を削除します。CodexとOpenCodeは無効です。アダプターがまだないか、インストールされていません。既存のHub（URL、メール、マスクされたパスワード、接続確認）、ローカルへのインストール、またはスキップを選べます。Rootsにはプロジェクトの親フォルダーをカンマ区切りで入力します。最大5階層まで探し、`.kankaku/worklog.jsonl`のあるフォルダーをプロジェクトとみなします。Reviewでは変更するファイルを一つずつ確認でき、Doneでダッシュボードが開きます。
+ターミナルで`kankaku setup`を実行すると、フルスクリーンのウィザードが開きます。Agents、Hub、Roots、Review、Apply、Doneの順に進みます。Agentsには各エージェントの設定状態とパスが表示され、設定済みの項目を外すとそのエージェントからkankakuの設定を削除します。CodexとOpenCodeは無効です。アダプターがまだないか、インストールされていません。既存のHub（URL、メール、マスクされたパスワード、接続確認）、ローカルへのインストール、またはスキップを選べます。「ローカルにインストール」では所有者のメールアドレスとパスワード、ポートを入力します。ポートには空いている最初の番号があらかじめ入力されます。Rootsにはプロジェクトの親フォルダーをカンマ区切りで入力します。最大5階層まで探し、`.kankaku/worklog.jsonl`のあるフォルダーをプロジェクトとみなします。Reviewでは変更するファイルを一つずつ確認でき、Doneでダッシュボードが開きます。
 
 `kankaku setup --yes`は確認なしで既定値を使います。`kankaku setup --dry-run`は変更せず計画を表示します。各ファイルの初回変更前に`<file>.bak`を作成し、セットアップは再実行できます。`kankaku doctor`は読み取り専用の診断結果を表示します。
 
@@ -37,22 +37,31 @@ Node.js 24以降が必要です。以下のローカルHubはmacOSとLinuxに対
 | コマンド | 内容 |
 |---|---|
 | `kankaku` | ダッシュボードを開きます。初回で`~/.kankaku/tui.json`がなければセットアップを案内します。 |
+| `kankaku --version` | `kankaku`と同梱パッケージ（`kankaku-pi`、`kankaku-claude`、`kankaku-hub`）のバージョンを表示します。`kankaku -v`と`kankaku version`も使えます。 |
 | `kankaku today [--roots a,b]` | 今日の作業をプロジェクト別にテキスト表示します。 |
 | `kankaku tasks [--all]` | プロジェクト別にタスクを1行ずつ表示します。通常は今日のみ、`--all`で全件です。 |
 | `kankaku catalog [refresh]` | キャッシュ済みの顧客・案件数を通信せず表示します。`refresh`はHubから取得して`~/.kankaku/catalog.json`に保存します。 |
 | `kankaku sync [status\|all] [--project <dir>]` | `status`は通信せず保留件数と最終同期を表示します。引数なしは保留分、`all`は全件を同期します。`--project`を指定しなければ検出した全プロジェクトが対象です。 |
 | `kankaku setup [--yes] [--dry-run]` | ウィザードまたは非対話セットアップです。 |
 | `kankaku doctor` | エージェント、Hub、`tui.json`の読み取り専用診断です。`todo`には`next:`の案内が付きます。 |
-| `kankaku hub install\|start\|stop\|status\|upgrade\|logs` | ローカルHubを管理します。 |
+| `kankaku hub use` | このマシンの同期先をローカルHubに切り替え、以前の認証情報のバックアップを保存します。 |
+| `kankaku hub install\|start\|stop\|status\|upgrade\|logs\|use` | ローカルHubを管理します。 |
 
 <h2 id="screens">画面</h2>
 
 - **Dashboard:** 今日の作業・待機・コスト・タスク・cache hit、直近7日間、プロジェクト別の割合、Hubカード。`c`で一覧更新、`s`で全件同期、`S`で完全同期、`r`で再読み込み。Hubカードでは`h`でローカルHubを起動・停止します。
-- **Tasks:** タスクの一覧と詳細（プロンプト、顧客、案件、Hubタスク、総時間・作業・待機、コスト、cache hit、サブエージェント）。`a`で今日と全期間を切り替えます。
+- **Tasks:** タスクの一覧と詳細（プロンプト、顧客、案件、Hubタスク、総時間・作業・待機、コスト、cache hit、サブエージェント）。`a`で今日と全期間を切り替えます。`m`で選択中のタスクを別の顧客・案件・Hubタスクへ移し、`M`で現在の表示にあるタスクのうちHub上で未割り当てのものをすべて移します。
 - **Catalog:** 顧客・案件と未完了タスク数、キャッシュの経過時間と古さを表示します。
 - **Sync:** プロジェクトごとのカード。`s`で同期、`f`で完全同期、`S`で全プロジェクトを同期します。
 
 `1`～`4`で画面切り替え、`q`で終了、矢印キーで移動、`Enter`で開き、`Esc`で戻ります。
+
+<h3 id="reassign">タスクの割り当て変更</h3>
+
+- Tasks画面の`m`は選択中のタスク、`M`は現在の表示にある対象タスクを移します。どちらも選択画面を開き、顧客、その顧客の案件、その案件の完了していないタスクの順に選びます。現在の割り当て → 新しい割り当てを確認し、行ごとの結果を表示します。
+- `M`はHub上ですでに実際の顧客に割り当てられた行には触れません。Hubにまだないタスクは「sync first」としてスキップされます。
+- 顧客・案件・タスクの整合しない組み合わせは選べず、送信前に拒否されます。一覧を更新できない場合、選択画面は開きません。
+- 同期は行の作成時にだけ割り当てを設定し、変更後の割り当てを元に戻しません。ローカルの作業ログは書き換えられないため、ローカルレポートには記録時の割り当てが残り、Hubには修正後の割り当てが保持されます。
 
 <h2 id="themes">テーマ</h2>
 
@@ -60,7 +69,9 @@ Node.js 24以降が必要です。以下のローカルHubはmacOSとLinuxに対
 
 <h2 id="local-hub">ローカルHub</h2>
 
-`kankaku hub install [--port N] [--owner-email E]`はnpmパッケージ`kankaku-hub`からOS・CPUに合うPocketBaseを取得してSHA256を検証し、`~/.kankaku/hub/`に設置します。管理者・所有者・サービスアカウントを作成し、Hubを起動したままにします。ターミナルでは未入力の所有者メール・パスワードを尋ねます（パスワードは非表示）。非対話で使う場合は`--owner-email`と`--owner-password`の両方が必要です。再実行しても既存の設定は変更されません。別プロセスがポートを使用中なら停止するので、別の`--port`を指定するかポートを空けてください。既定ポートは8090です。ローカルインストールはmacOSとLinuxのみです。
+`kankaku hub install [--port N] [--owner-email E]`はnpmパッケージ`kankaku-hub`からOS・CPUに合うPocketBaseを取得してSHA256を検証し、`~/.kankaku/hub/`に設置します。管理者・所有者・サービスアカウントを作成し、Hubを起動したままにします。ターミナルでは未入力の所有者メール・パスワードを尋ねます（パスワードは非表示）。非対話で使う場合は`--owner-email`と`--owner-password`の両方が必要です。再実行しても既存の設定は変更されません。既定ポートは8090です。使用中ならインストールは停止し、`--port`で指定できる空きポートを案内します。自動で別のポートは選びません。既存のインストールはそのポートを維持します。ローカルインストールはmacOSとLinuxのみです。
+
+ローカルHubのインストールだけでは、別のHubに設定済みのこのマシンの同期先は変わりません。`~/.kankaku/credentials.json`が別のHubを指していれば変更されません。ローカルHubへ切り替えるには`kankaku hub use`を実行します（以前のファイルはバックアップされます）。`kankaku hub status`には`sync: local hub`、`sync: <url>`、または`sync: not configured`が表示されます。
 
 `kankaku hub start | stop | status | upgrade | logs [-n N]`で管理します。`upgrade`は新しい`app/<version>/`をコピーし、PocketBaseのバージョンが変わった場合のみ再取得して再起動します。`pb_data`は変更しません。
 
@@ -71,7 +82,8 @@ Node.js 24以降が必要です。以下のローカルHubはmacOSとLinuxに対
 | `~/.kankaku/hub/app/<version>/` | Hubのマイグレーション、フック、静的ファイル。 |
 | `~/.kankaku/hub/hub.json` | インストール済みのポートとバージョン。 |
 | `~/.kankaku/hub/accounts.json`（モード0600） | 管理者と所有者のアカウント情報。 |
-| `~/.kankaku/credentials.json` | リモートHubと同様、同期に使う生成済みサービスアカウント。 |
+| `~/.kankaku/credentials.json` | このマシンの同期先。`hub install`が書き込むのはファイルがない場合、またはすでにこのローカルHubを指している場合のみです。`kankaku hub use`で切り替えます。 |
+| `~/.kankaku/hub/service.json`（モード0600） | ローカルHubのサービスアカウント。 |
 
 <h2 id="configuration">設定</h2>
 

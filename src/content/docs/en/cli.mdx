@@ -28,7 +28,7 @@ Requires Node.js 24 or later. The local hub below supports macOS and Linux.
 
 <h2 id="setup">Setup</h2>
 
-On a terminal, `kankaku setup` opens a full-screen wizard: Agents, Hub, Roots, Review, Apply, Done. The Agents checklist shows whether each agent is configured and its path; unchecking a configured agent removes kankaku from it. Codex and OpenCode are disabled: there is no adapter yet (or the agent is not installed). Choose an existing hub (URL, email, masked password and health check), install one locally, or skip it. Enter comma-separated project roots; the search goes up to five levels deep, and a folder with `.kankaku/worklog.jsonl` is a project. Review shows each exact file change before applying it. Done opens the dashboard.
+On a terminal, `kankaku setup` opens a full-screen wizard: Agents, Hub, Roots, Review, Apply, Done. The Agents checklist shows whether each agent is configured and its path; unchecking a configured agent removes kankaku from it. Codex and OpenCode are disabled: there is no adapter yet (or the agent is not installed). Choose an existing hub (URL, email, masked password and health check), install one locally, or skip it. “Install locally” asks for the owner's email and password and a port prefilled with the first free one. Enter comma-separated project roots; the search goes up to five levels deep, and a folder with `.kankaku/worklog.jsonl` is a project. Review shows each exact file change before applying it. Done opens the dashboard.
 
 `kankaku setup --yes` accepts defaults without questions; `kankaku setup --dry-run` prints the plan and writes nothing. A `<file>.bak` is made before the first change to a file. Re-running setup is safe. `kankaku doctor` gives a read-only report.
 
@@ -37,22 +37,31 @@ On a terminal, `kankaku setup` opens a full-screen wizard: Agents, Hub, Roots, R
 | Command | What it does |
 |---|---|
 | `kankaku` | Opens the dashboard; on the first run without `~/.kankaku/tui.json`, offers setup. |
+| `kankaku --version` | Prints the version of `kankaku` and its bundled packages (`kankaku-pi`, `kankaku-claude`, `kankaku-hub`). Also `kankaku -v` and `kankaku version`. |
 | `kankaku today [--roots a,b]` | Today's work per project as plain text. |
 | `kankaku tasks [--all]` | One line per task grouped by project; today unless `--all`. |
 | `kankaku catalog [refresh]` | Cached client and project counts without network; `refresh` fetches from the hub into `~/.kankaku/catalog.json`. |
 | `kankaku sync [status\|all] [--project <dir>]` | `status` shows pending counts and last sync without network; no argument syncs the pending window; `all` fully resyncs. All discovered projects unless `--project` is set. |
 | `kankaku setup [--yes] [--dry-run]` | Wizard or non-interactive setup. |
 | `kankaku doctor` | Read-only report for agents, hub and `tui.json`, with a `next:` hint for `todo` items. |
-| `kankaku hub install\|start\|stop\|status\|upgrade\|logs` | Manage the local hub. |
+| `kankaku hub use` | Points this machine's sync at the local hub, keeping a backup of previous credentials. |
+| `kankaku hub install\|start\|stop\|status\|upgrade\|logs\|use` | Manage the local hub. |
 
 <h2 id="screens">Screens</h2>
 
 - **Dashboard:** today's work, waiting, cost, tasks and cache hit; last seven days; projects and their shares; hub card. `c` refreshes the catalog, `s` syncs all, `S` fully syncs, `r` reloads. The hub card's `h` starts or stops the local hub.
-- **Tasks:** task table and detail (prompt, client, project, hub task, wall/work/wait time, cost, cache hit, subagents). `a` toggles today/all.
+- **Tasks:** task table and detail (prompt, client, project, hub task, wall/work/wait time, cost, cache hit, subagents). `a` toggles today/all. `m` moves the selected task to another client, project and hub task; `M` moves every task in the view that is unassigned on the hub.
 - **Catalog:** clients, projects and open task counts; cache age and a stale indicator.
 - **Sync:** one card per project; `s` syncs it, `f` fully syncs it, `S` syncs all.
 
 Use `1`–`4` to switch screens, `q` to quit, arrows to move, `Enter` to open and `Esc` to go back.
+
+<h3 id="reassign">Reassigning tasks</h3>
+
+- In the Tasks screen, `m` moves the selected task; `M` moves eligible tasks in the current view. Both open a picker: choose a client, then one of that client's projects, then a not-done task in that project, review the current → new assignment, and see the result for each row.
+- `M` never touches a row already assigned to a real client on the hub. A task not yet on the hub is skipped with “sync first”.
+- An invalid client, project and task combination cannot be chosen and is rejected before anything is sent. If the catalog cannot be refreshed, the picker does not open.
+- Sync sets assignment only when creating a row and never undoes a reassignment. The local worklog is not rewritten: local reports retain the assignment recorded then, while the hub holds the corrected one.
 
 <h2 id="themes">Themes</h2>
 
@@ -60,7 +69,9 @@ Use `--theme gentleman-sexy` (default), `--theme gentleman-cute` or `--theme gen
 
 <h2 id="local-hub">Local hub</h2>
 
-`kankaku hub install [--port N] [--owner-email E]` downloads PocketBase for this OS and CPU from the `kankaku-hub` npm package, verifies its SHA256, installs under `~/.kankaku/hub/`, creates a superuser, owner and service account, and leaves the hub running. On a terminal, missing owner email or password is requested (password masked); non-interactively supply both `--owner-email` and `--owner-password`. Re-running leaves existing installation intact. If another process answers on the port, installation stops: choose another `--port` or free the port. The default is 8090. Local installation supports macOS and Linux only.
+`kankaku hub install [--port N] [--owner-email E]` downloads PocketBase for this OS and CPU from the `kankaku-hub` npm package, verifies its SHA256, installs under `~/.kankaku/hub/`, creates a superuser, owner and service account, and leaves the hub running. On a terminal, missing owner email or password is requested (password masked); non-interactively supply both `--owner-email` and `--owner-password`. Re-running leaves existing installation intact. The default port is 8090. If it is taken, installation stops and names a free one to pass with `--port`; it never picks a port on its own. An existing installation keeps its port. Local installation supports macOS and Linux only.
+
+Installing a local hub does not change where this machine syncs if it is configured for another hub. If `~/.kankaku/credentials.json` already points at another hub, it is left untouched; run `kankaku hub use` to switch to the local hub (with a backup). `kankaku hub status` shows `sync: local hub`, `sync: <url>` or `sync: not configured`.
 
 `kankaku hub start | stop | status | upgrade | logs [-n N]` controls it. `upgrade` copies a new `app/<version>/`, downloads PocketBase only if its version changes, restarts and never touches `pb_data`.
 
@@ -71,7 +82,8 @@ Use `--theme gentleman-sexy` (default), `--theme gentleman-cute` or `--theme gen
 | `~/.kankaku/hub/app/<version>/` | Hub migrations, hooks and static files. |
 | `~/.kankaku/hub/hub.json` | Installed port and versions. |
 | `~/.kankaku/hub/accounts.json` (mode 0600) | Superuser and owner account details. |
-| `~/.kankaku/credentials.json` | Generated service account used by sync, as for a remote hub. |
+| `~/.kankaku/credentials.json` | Where this machine syncs. Written by `hub install` only when none exists or it already points at this local hub; switched with `kankaku hub use`. |
+| `~/.kankaku/hub/service.json` (mode 0600) | The local hub's service account. |
 
 <h2 id="configuration">Configuration</h2>
 
