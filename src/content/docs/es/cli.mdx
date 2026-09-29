@@ -1,0 +1,78 @@
+---
+title: CLI
+seoTitle: "CLI de kankaku: panel, asistente y hub local"
+description: "La aplicación de terminal de kankaku: panel de proyectos, configuración de pi, gentle-shell y Claude Code, y hub local."
+order: 2
+---
+
+<h2 id="install">Instalar</h2>
+
+```sh
+npm install -g kankaku
+kankaku setup
+```
+
+<h3 id="from-kankaku-tui">Si vienes de kankaku-tui</h3>
+
+Ambos paquetes proporcionan el comando `kankaku`, por lo que instalar el nuevo sobre el anterior falla con `EEXIST`. Haz el cambio en este orden:
+
+```sh
+npm uninstall -g kankaku-tui
+npm install -g kankaku
+kankaku setup
+```
+
+Vuelve a ejecutar `kankaku setup` porque los hooks, la línea de estado y los comandos de Claude Code apuntan a la ruta del paquete instalado, que ha cambiado.
+
+Requiere Node.js 24 o posterior. El hub local descrito más abajo funciona en macOS y Linux.
+
+<h2 id="setup">Configuración inicial</h2>
+
+En una terminal, `kankaku setup` abre un asistente de pantalla completa: Agents, Hub, Roots, Review, Apply y Done. La lista de agentes indica si cada uno está configurado y su ruta; al desmarcar uno configurado se elimina kankaku de ese agente. Codex y OpenCode aparecen deshabilitados: todavía no tienen adaptador (o no están instalados). Puedes usar un hub existente (URL, correo, contraseña oculta y comprobación de salud), instalar uno localmente u omitirlo. Introduce carpetas raíz separadas por comas; se buscan proyectos hasta cinco niveles de profundidad y una carpeta con `.kankaku/worklog.jsonl` es un proyecto. Review muestra cada archivo que cambiará; Done abre el panel.
+
+`kankaku setup --yes` acepta los valores predeterminados sin preguntas; `kankaku setup --dry-run` imprime el plan sin escribir nada. Se crea un `<file>.bak` antes del primer cambio en cada archivo. Se puede repetir la configuración. `kankaku doctor` muestra un informe de solo lectura.
+
+<h2 id="commands">Comandos</h2>
+
+| Comando | Función |
+|---|---|
+| `kankaku` | Abre el panel; la primera vez, sin `~/.kankaku/tui.json`, ofrece configurar el sistema. |
+| `kankaku today [--roots a,b]` | Trabajo de hoy por proyecto en texto plano. |
+| `kankaku tasks [--all]` | Una línea por tarea, agrupadas por proyecto; solo hoy salvo con `--all`. |
+| `kankaku catalog [refresh]` | Recuentos de clientes y proyectos en caché, sin red; `refresh` consulta el hub y guarda `~/.kankaku/catalog.json`. |
+| `kankaku sync [status\|all] [--project <dir>]` | `status` muestra pendientes y última sincronización sin red; sin argumento sincroniza la ventana pendiente; `all` resincroniza todo. Incluye todos los proyectos detectados salvo con `--project`. |
+| `kankaku setup [--yes] [--dry-run]` | Asistente o configuración no interactiva. |
+| `kankaku doctor` | Informe de solo lectura sobre agentes, hub y `tui.json`, con una pista `next:` para cada elemento `todo`. |
+| `kankaku hub install\|start\|stop\|status\|upgrade\|logs` | Gestiona el hub local. |
+
+<h2 id="screens">Pantallas</h2>
+
+- **Dashboard:** trabajo, espera, coste, tareas y cache hit de hoy; últimos siete días; proyectos y su proporción; tarjeta del hub. `c` actualiza el catálogo, `s` sincroniza todo, `S` hace una sincronización completa y `r` recarga. `h` inicia o detiene el hub local desde su tarjeta.
+- **Tasks:** tabla y detalle (prompt, cliente, proyecto, tarea del hub, tiempos total/de trabajo/de espera, coste, cache hit y subagentes). `a` alterna hoy/todo.
+- **Catalog:** clientes, proyectos y número de tareas abiertas; antigüedad de la caché e indicador de datos desactualizados.
+- **Sync:** una tarjeta por proyecto; `s` sincroniza ese proyecto, `f` lo resincroniza por completo y `S` sincroniza todos.
+
+`1`–`4` cambian de pantalla, `q` sale, las flechas mueven la selección, `Enter` abre y `Esc` vuelve.
+
+<h2 id="themes">Temas</h2>
+
+Usa `--theme gentleman-sexy` (predeterminado), `--theme gentleman-cute` o `--theme gentle`, o establece `KANKAKU_TUI_THEME`.
+
+<h2 id="local-hub">Hub local</h2>
+
+`kankaku hub install [--port N] [--owner-email E]` descarga PocketBase para el sistema y la CPU desde el paquete npm `kankaku-hub`, verifica su SHA256, lo instala en `~/.kankaku/hub/`, crea cuentas de superusuario, propietario y servicio y deja el hub en marcha. En una terminal pregunta el correo o la contraseña que falten (esta última oculta); sin interacción, proporciona tanto `--owner-email` como `--owner-password`. Repetirlo no modifica lo ya instalado. Si otro proceso responde en el puerto, se detiene: elige otro `--port` o libera ese puerto. El puerto predeterminado es 8090. La instalación local solo funciona en macOS y Linux.
+
+`kankaku hub start | stop | status | upgrade | logs [-n N]` controla el hub. `upgrade` copia un nuevo `app/<version>/`, descarga PocketBase solo si cambia su versión, reinicia y nunca toca `pb_data`.
+
+| Ruta | Función |
+|---|---|
+| `~/.kankaku/hub/bin/pocketbase` | Binario de PocketBase. |
+| `~/.kankaku/hub/pb_data/` | Base de datos; se conserva al actualizar. |
+| `~/.kankaku/hub/app/<version>/` | Migraciones, hooks y archivos estáticos del hub. |
+| `~/.kankaku/hub/hub.json` | Puerto y versiones instaladas. |
+| `~/.kankaku/hub/accounts.json` (modo 0600) | Datos de las cuentas de superusuario y propietario. |
+| `~/.kankaku/credentials.json` | Cuenta de servicio generada para la sincronización, igual que con un hub remoto. |
+
+<h2 id="configuration">Configuración</h2>
+
+`~/.kankaku/tui.json` guarda `{"roots": [...]}` y `~/.kankaku/credentials.json` guarda `{url,email,password}`. Las variables de entorno prevalecen campo por campo: `KANKAKU_PB_URL`, `KANKAKU_PB_EMAIL`, `KANKAKU_PB_PASSWORD`. Otros ajustes: `KANKAKU_SYNC_WINDOW_HOURS`, `KANKAKU_SYNC_PROMPT`, `KANKAKU_SYNC_RECORDS`, `KANKAKU_MACHINE`, `KANKAKU_TUI_THEME`. Sin credenciales, el catálogo y el estado de sincronización muestran una nota y salen con código 0; la actualización del catálogo y los comandos de sincronización muestran un error y salen con código 1.

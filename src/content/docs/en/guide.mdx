@@ -1,45 +1,86 @@
 ---
 title: Guide
 seoTitle: "kankaku guide: install, measure, connect the hub"
-description: "Guide to kankaku, the pi extension: install, your first session, see your work-time and cost numbers, connect the hub, subagents and settings."
+description: "Guide to kankaku: install with the CLI, measure pi and Claude Code work, see your numbers, connect or install the hub, subagents and settings."
 order: 1
 ---
 
 import EnvTable from "../../../components/EnvTable.astro";
-import GuideToc from "../../../components/GuideToc.astro";
 import InstallCommand from "../../../components/InstallCommand.astro";
-
-<GuideToc
-  locale="en"
-  items={[
-    { id: "install", label: "Install" },
-    { id: "first-session", label: "First session" },
-    { id: "numbers", label: "Your numbers" },
-    { id: "hub", label: "Connect the hub" },
-    { id: "subagents", label: "Subagents" },
-    { id: "settings", label: "Settings" },
-    { id: "notes", label: "Good to know" },
-  ]}
-/>
 
 <h2 id="install">Install</h2>
 
+Recommended for every agent:
+
+```sh
+npm install -g kankaku
+kankaku setup
+```
+
+`kankaku` installs everything: the CLI, the pi extension and the Claude Code integration.
+
+Requires Node.js 24 or later. `kankaku setup` opens a wizard for agents (pi, gentle-shell, Claude Code), a hub (existing, local, or skipped) and project roots. Then `kankaku` opens the dashboard. For scripts, `kankaku setup --yes` accepts defaults without questions; `kankaku setup --dry-run` prints the plan without writing. `kankaku doctor` reports the state read-only. See the [CLI guide](/docs/cli).
+
+Only the pi extension:
+
 <InstallCommand locale="en" variant="doc" />
 
-Also: `pi install git:github.com/soyunninja/kankaku` (add `@v0.5.0` to pin), or `pi install /local/path`, no copy. Try without installing: `pi -e /local/path`. With gentle-shell, these same commands are `gentle-shell install …`.
+`pi install npm:kankaku` still works for existing installs, but it also brings the CLI's dependencies into pi; never keep both sources in the same settings, or the extension loads twice and doubles every measurement.
+
+Also: `pi install git:github.com/soyunninja/kankaku` (add `@v1.0.0` or later to pin; tags v0.9.0 through v0.12.0 cannot be loaded from git), or `pi install /absolute/path/to/kankaku/packages/pi`, no copy. Try without installing: `pi -e /absolute/path/to/kankaku/packages/pi`. With gentle-shell, these same install commands use `gentle-shell install …`.
 
 <h2 id="first-session">Your first session</h2>
 
+In pi the first prompt is measured from the next prompt on; in Claude Code the same holds once `kankaku setup` has wired it (see “Claude Code” below).
+
 Nothing to turn on — kankaku measures from the next prompt. With a hub, opening a new project asks for the client and project; you can skip it, and saying yes to remembering means it won't ask again.
+
+In pi's TUI, `/kankaku` opens a framed panel. Its title (`>_ kankaku · <Screen>`) follows the screen you open:
+
+```
+╭─ >_ kankaku ─────────────────────────────────────╮
+│  Target   Client, project, hub task, label       │
+│  Report   Summary, tasks, sessions, clients,     │
+│           projects; today/all; pin to chat       │
+│  Sync     Status, now, all, backfill, catalog    │
+│  Export   csv/json, today/all, write file        │
+│  Doctor   Orphan/uncertain subagent counts       │
+│  About    Versions, directory, hub, settings     │
+│  ↑↓ move · Enter open · Esc/← back · q close     │
+╰──────────────────────────────────────────────────╯
+```
+
+`Esc` or `←` closes the panel at the root; `q` closes it from anywhere. Footer hints and rows are clickable only in pi's fullscreen mode, not regular mode. Subcommands still work unchanged and skip the panel in the TUI. Headless (print/RPC) mode uses subcommands too; there, bare `/kankaku` prints today's totals.
+
+<h2 id="claude-code">Claude Code</h2>
+
+Check Claude Code in `kankaku setup`. No git checkout or `--plugin-dir` flag is needed. Setup merges `statusLine` (which reports per-prompt cost) and the declared event hooks into `~/.claude/settings.json` without disturbing other keys or hooks. It installs user commands under `~/.claude/commands/kankaku/`. Re-run setup if the install path changes, such as after switching Node versions. Do not also launch Claude Code with `--plugin-dir`: hooks would run twice and records would be duplicated.
+
+Each prompt produces a worklog record in the same format as pi: wall time, waiting on a question or permission dialog, work time (wall minus waiting) and cost. The record identifies its measuring agent (`claude-code`), plugin (`kankaku-claude`) and plugin version, even when the CLI syncs it. Client and project resolve from the project's `config.json` first, then from repository paths in the cached hub catalog; hooks do not contact the network. An interrupted prompt closes at its last recorded activity.
+
+| Command | What it does | Notes |
+|---|---|---|
+| `/kankaku:report` | Recent work by day: wall, waiting and work time and cost per prompt. | Last 7 days. |
+| `/kankaku:status` | Sessions with state in this project: live process, open prompt, last cost, resolved `target:` and `task:`. | |
+| `/kankaku:task [number \| id \| text \| clear]` | Links this session to an open or doing task in the resolved hub project. No argument lists numbered tasks; choose by last-list number, hub id or unique title fragment; `clear` unlinks. | Hub required. Session-only, not saved in `config.json`; a task outside the resolved project is unlinked. Assignment on the hub happens only at row creation. |
+| `/kankaku:sync` | Syncs recent local records to the hub. | No arguments; default 24-hour window. |
+| `/kankaku:sync-all` | Requests a full sync. | |
+| `/kankaku:sync-status` | Shows local pending count and sync state. | No network or credentials. |
+| `/kankaku:doctor` | Read-only diagnosis of plugin files, sessions, cost visibility, hub sync, resolved target and task. | No hub contact or printed credentials. |
+| `/kankaku:setup` | Prints a `statusLine` snippet for `~/.claude/settings.json`. | Only needed without the `kankaku` CLI; `kankaku setup` already configures it. |
+
+Claude Code records contain no token counts, so there is no `cache hit`. Cost is a per-prompt share of the session total read from the statusline. Background subagent time is not measured separately; a permission wait ends at the next hook event, not the click. Client or project cannot yet be changed from inside Claude Code.
 
 <h2 id="numbers">Your numbers</h2>
 
 ```
-/kankaku            # today's summary
+/kankaku all        # all-time summary (TUI subcommand)
 /kankaku tasks      # one line per task
 /kankaku sync       # push what's pending to the hub
 /kankaku export     # csv or json
 ```
+
+Report lines with recorded tokens end in `cache hit NN%`, the share of prompt input tokens served from the provider's cache: `cacheRead / (input + cacheRead + cacheWrite)`. If no tokens were recorded, the suffix is omitted, not shown as `0%`. For example: `orchestrator: work 41m00s, waiting 0m00s, 1 record(s), $0.82, cache hit 68%`. This also applies to tasks, clients and projects lines in pi. Claude Code records have no token counts, so their lines have no cache hit.
 
 <h2 id="hub">Connect the hub (optional)</h2>
 
@@ -51,7 +92,13 @@ export KANKAKU_PB_EMAIL="service@your-hub.example"
 export KANKAKU_PB_PASSWORD="…"
 ```
 
-Use a service account, never your own. Without this, kankaku still works — the client is just free text.
+No hub yet? `kankaku setup` can install one here: choose “install locally” in the Hub step, or run `kankaku hub install`. See the [CLI guide](/docs/cli).
+
+Use a service account, never your own. Without this, kankaku still works — the client is just free text. The hub client/project catalog refreshes at every session start (the picker waits briefly); `/kankaku catalog refresh` refreshes it manually.
+
+Use `/kankaku task` (or `/kankaku task pick`) to link this session to an open/doing task in the current hub project; subsequent synced task rows carry that link. `/kankaku task clear` removes it. The link is session-only: it is not saved in `config.json` or requested at session start, and `/kankaku target pick|clear` drops it. Subagents do not inherit it. Create tasks in the hub, not in kankaku. Assignment happens only when a row is created, so changing the assignee in the hub web app is not undone by later syncs.
+
+In Claude Code, `/kankaku:task` links a hub task to the session. If you switch hubs, kankaku uploads everything again: it never reuses the previous hub's sync state. The agent shown on a hub row is the one that measured the work (pi or Claude Code), not the tool that synced it.
 
 **With [Engram](https://gentlemanprogramming.com/#engram).** If the hub has Engram configured, each session arrives with its goal and a summary of what got done, next to time and cost. Enable it with `KANKAKU_ENGRAM_URL` on the hub server. Without Engram, the hub looks exactly the same.
 
@@ -69,6 +116,8 @@ The `review` tag comes ready for `gentle-ai review`. If you don't use it, it nev
 
 <h2 id="settings">Settings</h2>
 
+The panel's About screen shows every environment-only setting read-only, alongside versions, the resolved `KANKAKU_DIR` and hub URL.
+
 <EnvTable locale="en" />
 
 <h2 id="notes">Good to know</h2>
@@ -78,6 +127,7 @@ The `review` tag comes ready for `gentle-ai review`. If you don't use it, it nev
 - A crash doesn't erase anything — it's marked interrupted.
 - kankaku estimates cost; it never invoices.
 - `/kankaku doctor` diagnoses without touching the network.
+- `kankaku doctor` (terminal) and `/kankaku:doctor` (Claude Code) diagnose the wider installation.
 
 | Metric | What it is |
 |---|---|

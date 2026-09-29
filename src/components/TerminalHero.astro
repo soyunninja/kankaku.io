@@ -8,36 +8,27 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 
 /**
- * A realistic /kankaku session transcript. This is the FULL, final content
+ * An illustrative kankaku CLI transcript. This is the FULL, final content
  * — always present in the DOM (readable with JS off, and to crawlers/
- * screen readers). The <script> below only replays it as a typing
+ * screen readers). The client-side script below only replays it as a typing
  * animation for sighted JS users who don't prefer reduced motion; it never
  * removes or hides this content, only visually reveals it progressively.
  */
+// Illustrative values in the exact project/total field order emitted by
+// formatTodayLines() in packages/cli/src/domain/today-model.ts.
 const LINES = [
-  { prompt: true, text: "/kankaku" },
-  // Verbatim shape of kankaku's real report: `formatReport()` in
-  // kankaku/src/adapters/report.ts, split on " | " and titled
-  // "summary (today)" by kankaku-command.ts. Do not restyle it into columns:
-  // the site must never show output the tool does not produce. The figures
-  // are consistent with each other (costs add up; the task's wall time is the
-  // UNION of orchestrator and subagent time, so it is not their sum).
-  { prompt: false, text: "summary (today)" },
-  { prompt: false, text: "orchestrator: work 41m12s, waiting 3m40s, 6 record(s), $0.82" },
-  { prompt: false, text: "subagent: work 18m05s, waiting 0m00s, 3 record(s), $0.31" },
-  { prompt: false, text: "tasks: 6, wall 44m52s, work 41m12s, $1.13" },
-  { prompt: true, text: "/kankaku sync" },
-  { prompt: false, text: "uploaded 2, updated 1, skipped 4, failed 0" },
-  { prompt: false, text: "synced through 2026-09-20T18:42:11.000Z" },
+  { prompt: true, text: "kankaku today" },
+  { prompt: false, text: "site  tasks 3  wall 32m  work 24m  wait 8m  $0.82" },
+  { prompt: false, text: "total  tasks 3  wall 32m  work 24m  wait 8m  $0.82" },
 ];
 ---
 
 <div class="terminal-hero" data-terminal-hero aria-label={t("home.heroReplayHint")}>
   <div class="terminal-hero__bar">
     <span class="cmd-block__dots"><span></span><span></span><span></span></span>
-    <span class="cmd-block__label">pi — kankaku</span>
+    <span class="cmd-block__label">kankaku</span>
   </div>
-  <pre class="terminal-hero__body" data-terminal-body>{LINES.map((l) => (l.prompt ? "$ " : "  ") + l.text).join("\n")}</pre>
+  <pre class="terminal-hero__body" data-terminal-body>{LINES.map((l) => (l.prompt ? "$ " : "") + l.text).join("\n")}</pre>
 </div>
 <p class="visually-hidden" data-terminal-note>{t("home.heroReplayHint")}</p>
 

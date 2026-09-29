@@ -33,3 +33,5 @@ docs/screenshots/_*.png
 # Playwright test artifacts
 test-results/
 playwright-report/
+# Local Pi runtime state
+.atl/

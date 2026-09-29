@@ -12,58 +12,87 @@ const { locale } = Astro.props;
 const i18n = { es: esI18n, en: enI18n, ja: jaI18n }[locale];
 ---
 
-<div class="env-table-wrap">
-  <table class="env-table">
-    <thead>
-      <tr>
-        <th>{i18n.config.envColumns.name}</th>
-        <th>{i18n.config.envColumns.default}</th>
-        <th>{i18n.config.envColumns.meaning}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {
-        KANKAKU_ENV_VARS.map((ev) => (
-          <tr>
-            <td><code>{ev.name}</code></td>
-            <td><code>{ev.default}</code></td>
-            <td>{i18n.config.env[ev.i18nKey as keyof typeof i18n.config.env]}</td>
-          </tr>
-        ))
-      }
-    </tbody>
-  </table>
+<div class="env-table-frame">
+  <div class="env-table-wrap" tabindex="0">
+    <table class="env-table">
+      <thead>
+        <tr>
+          <th>{i18n.config.envColumns.name}</th>
+          <th>{i18n.config.envColumns.default}</th>
+          <th>{i18n.config.envColumns.meaning}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          KANKAKU_ENV_VARS.map((ev) => (
+            <tr>
+              <td><code>{ev.name}</code></td>
+              <td><code>{ev.default}</code></td>
+              <td>{i18n.config.env[ev.i18nKey as keyof typeof i18n.config.env]}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <style>
-  .env-table-wrap {
-    overflow-x: auto;
+  .env-table-frame {
+    position: relative;
+    max-width: 100%;
+    min-width: 0;
     margin-block: 1rem;
+  }
+  .env-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .env-table-wrap:focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
   }
   .env-table {
     width: 100%;
+    min-width: 44rem;
     border-collapse: collapse;
-    font-size: 0.82rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
     table-layout: fixed;
   }
   .env-table th,
   .env-table td {
     border: 1px solid var(--border);
-    padding: 0.45rem 0.65rem;
+    padding: 0.6rem 0.75rem;
     text-align: left;
     vertical-align: top;
     overflow-wrap: break-word;
   }
   .env-table th:nth-child(1),
   .env-table td:nth-child(1) {
-    width: 15rem;
+    width: 14rem;
   }
   .env-table th:nth-child(2),
   .env-table td:nth-child(2) {
-    width: 11rem;
+    width: 9rem;
   }
   .env-table th {
     background: var(--muted);
     font-family: var(--font-mono);
+  }
+  @media (max-width: 760px) {
+    .env-table-frame::after {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-end: 0;
+      width: 1.5rem;
+      pointer-events: none;
+      background: linear-gradient(to right, transparent, var(--background));
+    }
+    .env-table th:last-child,
+    .env-table td:last-child {
+      padding-inline-end: 2rem;
+    }
   }
 </style>

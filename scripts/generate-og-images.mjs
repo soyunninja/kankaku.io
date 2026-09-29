@@ -3,36 +3,41 @@
  * Generates one console-styled Open Graph image per locale (1200x630) as a
  * static SVG rasterized to PNG via sharp/librsvg. Not part of `astro build`
  * — re-run manually (`node scripts/generate-og-images.mjs`) if the copy or
- * palette changes. Output: public/og/<locale>.png.
- *
- * Copy is kept in sync by hand with src/i18n/ui.ts (home.heroKicker,
- * home.heroLine) rather than imported, since this is a plain .mjs script
- * and ui.ts is TypeScript — update both places together.
+ * palette changes. `--check` compares the copy and generated PNG bytes
+ * without writing files. Output: public/og/<locale>.png.
  */
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import ts from "typescript";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const outDir = path.join(here, "..", "public", "og");
+const uiPath = path.join(here, "..", "src", "i18n", "ui.ts");
+const args = process.argv.slice(2);
+if (args.length > 1 || (args.length === 1 && args[0] !== "--check")) {
+  console.error("Usage: node scripts/generate-og-images.mjs [--check]");
+  process.exit(1);
+}
+const check = args[0] === "--check";
 
 // Keep in sync with src/i18n/ui.ts: home.heroKicker and home.heroLine.
 const COPY = {
   es: {
-    kicker: "pi extension · v0.5.0",
-    line: "Sabe cuánto trabajó tu agente en cada cliente, proyecto y tarea. Y cuánto te costó.",
-    prompt: "$ pi install npm:kankaku",
+    kicker: "pi · Claude Code · CLI · v1.0.0",
+    line: "Mide cuánto tiempo trabajó tu agente de IA y cuánto costó, por cliente, proyecto y tarea.",
+    prompt: "$ npm install -g kankaku",
   },
   en: {
-    kicker: "pi extension · v0.5.0",
+    kicker: "pi · Claude Code · CLI · v1.0.0",
     line: "Know how long your agent worked on each client, project and task. And what it cost you.",
-    prompt: "$ pi install npm:kankaku",
+    prompt: "$ npm install -g kankaku",
   },
   ja: {
-    kicker: "piエクステンション · v0.5.0",
+    kicker: "pi · Claude Code · CLI · v1.0.0",
     line: "エージェントが各クライアント・プロジェクト・タスクにどれだけ作業したかがわかります。かかったコストも。",
-    prompt: "$ pi install npm:kankaku",
+    prompt: "$ npm install -g kankaku",
   },
 };
 
@@ -123,10 +128,54 @@ function svgFor({ kicker, line, prompt }, locale) {
   </svg>`;
 }
 
-await mkdir(outDir, { recursive: true });
+// Parse the TypeScript dictionary rather than executing it or matching source
+// text: non-literal hero strings should fail the check, not silently pass.
+function property(object, name) {
+  if (!ts.isObjectLiteralExpression(object)) throw new Error(`Expected object for ${name}`);
+  const match = object.properties.find((p) =>
+    ts.isPropertyAssignment(p) && p.name.getText() === name);
+  if (!match) throw new Error(`Missing UI property: ${name}`);
+  return match.initializer;
+}
+
+async function checkCopy() {
+  const source = ts.createSourceFile(uiPath, await readFile(uiPath, "utf8"), ts.ScriptTarget.Latest, true);
+  if (source.parseDiagnostics.length) throw new Error("Cannot parse src/i18n/ui.ts");
+  const declaration = source.statements
+    .filter(ts.isVariableStatement)
+    .flatMap((statement) => [...statement.declarationList.declarations])
+    .find((item) => item.name.getText() === "ui");
+  if (!declaration) throw new Error("Missing ui dictionary");
+  const dictionary = ts.isAsExpression(declaration.initializer)
+    ? declaration.initializer.expression : declaration.initializer;
+  if (!ts.isObjectLiteralExpression(dictionary)) throw new Error("Expected ui dictionary object");
+  const locales = dictionary.properties.map((p) => p.name?.getText());
+  if (locales.length !== 3 || new Set(locales).size !== 3 ||
+      locales.some((locale) => !Object.hasOwn(COPY, locale))) {
+    throw new Error(`UI locales differ from OG locales: ${locales.join(", ")}`);
+  }
+  for (const [locale, copy] of Object.entries(COPY)) {
+    const home = property(property(dictionary, locale), "home");
+    for (const [field, expected] of [["heroKicker", copy.kicker], ["heroLine", copy.line]]) {
+      const value = property(home, field);
+      if (!ts.isStringLiteral(value) || value.text !== expected) {
+        throw new Error(`OG COPY mismatch: ${locale}.home.${field}`);
+      }
+    }
+  }
+}
+
+if (check) await checkCopy();
+else await mkdir(outDir, { recursive: true });
+
 for (const [locale, copy] of Object.entries(COPY)) {
-  const svg = svgFor(copy, locale);
-  const png = await sharp(Buffer.from(svg)).png().toBuffer();
-  await writeFile(path.join(outDir, `${locale}.png`), png);
-  console.log(`public/og/${locale}.png: ${(png.length / 1024).toFixed(1)} KB`);
+  const png = await sharp(Buffer.from(svgFor(copy, locale))).png().toBuffer();
+  const output = path.join(outDir, `${locale}.png`);
+  if (check) {
+    const existing = await readFile(output);
+    if (!png.equals(existing)) throw new Error(`OG image differs: public/og/${locale}.png`);
+  } else {
+    await writeFile(output, png);
+  }
+  console.log(`public/og/${locale}.png: ${(png.length / 1024).toFixed(1)} KB${check ? " matches" : ""}`);
 }

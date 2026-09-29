@@ -158,6 +158,9 @@ a:hover {
   border-radius: var(--radius-sm);
   font-size: 0.9em;
 }
+.prose :not(pre) > code {
+  overflow-wrap: anywhere;
+}
 .prose pre {
   background: var(--card);
   border: 1px solid var(--border);

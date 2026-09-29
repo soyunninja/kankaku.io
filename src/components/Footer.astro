@@ -13,26 +13,34 @@ const t = useTranslations(locale);
 <footer class="site-footer">
   <div class="container site-footer__row">
     <span>{t("footer.license")}</span>
-    <a href={`https://www.npmjs.com/package/${KANKAKU.npmPackage}`}>{t("footer.npm")}</a>
+    <a href={`https://www.npmjs.com/package/${KANKAKU.cliPackage}`}>{t("footer.npm")}</a>
     <a href={KANKAKU.repo}><NerdIcon name="github" /> GitHub</a>
-  </div>
-  <div class="container site-footer__row">
-    <span>
-      {t("footer.creditPrefix")}<a href="https://gentlemanprogramming.com" target="_blank" rel="noopener noreferrer">{t("footer.creditStack")}</a>{t("footer.creditMiddle")}<a href="https://github.com/Gentleman-Programming/gentle-ai" target="_blank" rel="noopener noreferrer">{t("footer.creditTool")}</a>{t("footer.creditLove")}
-    </span>
+    <a class="site-footer__author" href="https://baldboy.es/" target="_blank" rel="noopener noreferrer">
+      <img src="/baldboy.webp" alt="baldboy" width="104" height="50" />
+    </a>
   </div>
   {locale === "ja" && (
     <div class="container site-footer__row">
       <span class="site-footer__note">{t("footer.jaDisclaimer")}</span>
     </div>
   )}
+  <div class="site-footer__credit-band">
+    <div class="container site-footer__credit">
+      <a href="https://gentlemanprogramming.com/" target="_blank" rel="noopener noreferrer">
+        <img src="/gentle-invertido.webp" alt={t("footer.creditImageAlt")} width="270" height="90" />
+      </a>
+      <span>
+        {t("footer.creditPrefix")}<a href="https://github.com/Gentleman-Programming/gentle-ai" target="_blank" rel="noopener noreferrer">{t("footer.creditTool")}</a>{t("footer.creditLove")}
+      </span>
+    </div>
+  </div>
 </footer>
 
 <style>
   .site-footer {
     border-top: 1px solid var(--border);
-    margin-top: 3rem;
-    padding-block: 1.25rem;
+    margin-top: 6rem;
+    padding-top: 1.25rem;
     font-family: var(--font-mono);
     font-size: 0.78rem;
     color: var(--muted-foreground);
@@ -46,6 +54,20 @@ const t = useTranslations(locale);
   .site-footer__row + .site-footer__row {
     margin-top: 0.5rem;
   }
+  .site-footer__credit-band {
+    width: 100%;
+    margin-top: 1rem;
+    padding-block: 4rem;
+    background: #20161e;
+    color: #fff;
+  }
+  .site-footer__credit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+  }
   /* Footer links follow the site's link style (brand pink, underlined)
      instead of the muted, undecorated look they had before. */
   .site-footer__row a {
@@ -58,6 +80,33 @@ const t = useTranslations(locale);
   }
   .site-footer__row a:hover {
     text-decoration-thickness: 2px;
+  }
+  .site-footer__author {
+    margin-left: auto;
+  }
+  .site-footer__author img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-height: 30px;
+  }
+  .site-footer__credit span a {
+    color: #f095c8;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .site-footer__credit > a {
+    display: flex;
+    justify-content: center;
+    width: 675px;
+    max-width: 100%;
+  }
+  .site-footer__credit img {
+    display: block;
+    max-width: 50%;
+    max-height: 45px;
+    width: auto;
+    height: auto;
   }
   .site-footer__note {
     margin-left: auto;

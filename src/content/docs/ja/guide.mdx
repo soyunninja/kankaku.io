@@ -1,45 +1,81 @@
 ---
 title: ガイド
 seoTitle: "kankakuガイド：インストール、測定、Hub接続"
-description: piの拡張機能kankakuのガイド。インストール、最初のセッション、作業時間とコストの数値の見方、Hub接続、サブエージェント、設定について。
+description: kankakuのガイド。CLIのインストール、piとClaude Codeの作業測定、数値の見方、Hubの接続・設置、サブエージェント、設定について。
 order: 1
 ---
 
 import EnvTable from "../../../components/EnvTable.astro";
-import GuideToc from "../../../components/GuideToc.astro";
 import InstallCommand from "../../../components/InstallCommand.astro";
-
-<GuideToc
-  locale="ja"
-  items={[
-    { id: "install", label: "インストール" },
-    { id: "first-session", label: "最初のセッション" },
-    { id: "numbers", label: "数値の見方" },
-    { id: "hub", label: "Hubに接続" },
-    { id: "subagents", label: "サブエージェント" },
-    { id: "settings", label: "設定" },
-    { id: "notes", label: "知っておきたいこと" },
-  ]}
-/>
 
 <h2 id="install">インストール</h2>
 
+どのエージェントでも、次の方法を推奨します。
+
+```sh
+npm install -g kankaku
+kankaku setup
+```
+
+`kankaku`をインストールすると、CLI、piの拡張機能、Claude Code連携がすべて利用できます。
+
+Node.js 24以降が必要です。`kankaku setup`はエージェント（pi、gentle-shell、Claude Code）、Hub（既存・ローカル設置・スキップ）、プロジェクトの親フォルダーを選ぶウィザードです。続いて`kankaku`でダッシュボードを開けます。スクリプトでは`kankaku setup --yes`が確認なしで既定値を使い、`kankaku setup --dry-run`は変更せず計画を表示します。`kankaku doctor`は状態を読み取り専用で診断します。詳しくは[CLIガイド](/docs/cli)をご覧ください。
+
+piの拡張機能だけ使う場合:
+
 <InstallCommand locale="ja" variant="doc" />
 
-他の方法: `pi install git:github.com/soyunninja/kankaku`（`@v0.5.0`でバージョン固定）、または`pi install /ローカルパス`（コピーなし）。試すだけなら: `pi -e /ローカルパス`。gentle-shellの場合、同じコマンドは`gentle-shell install …`になります。
+既存のインストールでは`pi install npm:kankaku`も引き続き動作しますが、CLIの依存パッケージもpiに取り込みます。両方のソースを同じ設定に残さないでください。拡張機能が二重に読み込まれ、すべての測定が重複します。
+
+他の方法: `pi install git:github.com/soyunninja/kankaku`（固定するには`@v1.0.0`以降を指定。v0.9.0～v0.12.0のタグはgitから読み込めません）、または`pi install /absolute/path/to/kankaku/packages/pi`（コピーなし）。インストールせずに試すには`pi -e /absolute/path/to/kankaku/packages/pi`。gentle-shellではインストールコマンドに`gentle-shell install …`を使います。
 
 <h2 id="first-session">最初のセッション</h2>
 
+piでは次のプロンプトから測定されます。Claude Codeでも`kankaku setup`で設定すると同様です（下の「Claude Code」を参照）。
+
 何も有効化する必要はありません。次のプロンプトから測定が始まります。Hubがある場合、新しいプロジェクトを開くとクライアントとプロジェクトを聞かれます。スキップも可能で、「記憶する」を選べば次からは聞かれません。
+
+piのTUIでは、`/kankaku`で枠付きのパネルが開きます。タイトル（`>_ kankaku · <画面名>`）は開いている画面に合わせて変わります。
+
+- **Target:** 顧客、案件、Hubタスク、ラベル。
+- **Report:** 集計、タスク、セッション、顧客、案件。今日または全期間を選び、チャットに固定できます。
+- **Sync:** 状態、今すぐ同期、全件同期、過去分、一覧更新。
+- **Export:** CSVまたはJSON、今日または全期間、ファイルへの書き出し。
+- **Doctor:** 孤立または不確実な子プロセスの数。
+- **About:** バージョン、保存先、Hub、設定。
+- **操作:** `↑`/`↓` 移動、`Enter` 開く、`Esc`/`←` 戻る、`q` 閉じる。
+
+ルート画面では`Esc`または`←`で閉じ、`q`ならどの画面からでも閉じます。フッターのヒントと行をマウスでクリックできるのはpiのフルスクリーンモードだけです。通常モードではマウス操作は使えません。サブコマンドは従来どおり利用でき、TUIでもパネルを経由しません。ヘッドレス（print/RPC）モードでもサブコマンドを使います。このモードでは、引数なしの`/kankaku`は今日の合計を表示します。
+
+<h2 id="claude-code">Claude Code</h2>
+
+`kankaku setup`でClaude Codeを選びます。リポジトリのクローンも`--plugin-dir`も不要です。セットアップは`~/.claude/settings.json`の他のキーやツールのフックを保ちながら、プロンプトごとのコストを伝える`statusLine`と、プラグインが宣言する各イベントのフックを追加します。ユーザーコマンドは`~/.claude/commands/kankaku/`に設置されます。Node.jsのバージョン変更などでインストール先が変わったら、セットアップを再実行してください。`--plugin-dir`を併用するとフックが二重実行され、記録も重複します。
+
+プロンプトごとにpiと同じ形式の作業ログを記録します。総時間、質問や許可を待った時間、作業時間（総時間から待機を引いた値）、コストです。各記録には測定したエージェント（`claude-code`）、プラグイン（`kankaku-claude`）とそのバージョンが付き、CLIでHubへ同期しても保持されます。顧客と案件はプロジェクトの`config.json`、次にキャッシュ済みHub一覧のリポジトリパスから解決します。フックは通信しません。中断したプロンプトは最後に記録された活動時刻で閉じられます。
+
+| コマンド | 内容 | 補足 |
+|---|---|---|
+| `/kankaku:report` | 日別の最近の作業。プロンプトごとの総時間・待機・作業・コストを表示します。 | 直近7日間。 |
+| `/kankaku:status` | この案件の状態があるセッション。プロセスの稼働、開いたプロンプト、直近のコスト、解決済みの`target:`と`task:`を表示します。 | |
+| `/kankaku:task [number \| id \| text \| clear]` | 解決済みHub案件の未着手・進行中タスクをセッションに紐付けます。引数なしで番号付き一覧を表示し、直近一覧の番号・Hub ID・一意のタイトル部分で選び、`clear`で解除します。 | Hubが必要です。セッション限りで`config.json`には保存されず、タスクが案件から外れれば解除されます。Hubでの割り当ては行の作成時のみです。 |
+| `/kankaku:sync` | 最近のローカル記録をHubへ同期します。 | 引数なし。既定の対象は直近24時間。 |
+| `/kankaku:sync-all` | 全件同期を要求します。 | |
+| `/kankaku:sync-status` | ローカルの保留件数と同期状態を表示します。 | 通信も認証情報も不要です。 |
+| `/kankaku:doctor` | プラグインファイル、セッション、コスト表示、Hub同期、解決済みの対象とタスクを読み取り専用で診断します。 | Hubに接続せず、認証情報も表示しません。 |
+| `/kankaku:setup` | `~/.claude/settings.json`に貼る`statusLine`の設定例を表示します。 | `kankaku` CLIを使わない場合のみ必要です。`kankaku setup`なら設定済みです。 |
+
+Claude Codeにはトークン数がないため`cache hit`は表示されません。コストはstatuslineから取得したセッション合計をプロンプトごとに配分します。バックグラウンドのサブエージェント時間は個別に測定されません。許可待ちはクリック時ではなく次のフックイベントで終わります。Claude Code内から顧客や案件を変更することはまだできません。
 
 <h2 id="numbers">数値の見方</h2>
 
 ```
-/kankaku            # 今日の要約
+/kankaku all        # 全期間の要約（TUIのサブコマンド）
 /kankaku tasks      # タスクごとに1行
 /kankaku sync       # 保留分をHubへ送信
 /kankaku export     # csvまたはjson
 ```
+
+トークンが記録されたレポート行の末尾には`cache hit NN%`が付きます。プロバイダーのキャッシュから読み出されたプロンプト入力トークンの割合で、計算式は`cacheRead / (input + cacheRead + cacheWrite)`です。トークンの記録がない場合、`0%`とは表示せず、この部分を省略します。例: `orchestrator: work 41m00s, waiting 0m00s, 1 record(s), $0.82, cache hit 68%`。piのタスク、クライアント、プロジェクトの行にも適用されます。Claude Codeにはトークン数がないため、その行にcache hitは付きません。
 
 <h2 id="hub">Hubに接続（任意）</h2>
 
@@ -51,7 +87,13 @@ export KANKAKU_PB_EMAIL="service@your-hub.example"
 export KANKAKU_PB_PASSWORD="…"
 ```
 
-サービスアカウントを使い、自分のアカウントは使わないでください。接続しなくてもkankakuは動作します — クライアントが自由記述になるだけです。
+Hubがまだない場合は、`kankaku setup`のHub手順で「ローカルにインストール」を選ぶか、`kankaku hub install`を実行してください。詳しくは[CLIガイド](/docs/cli)をご覧ください。
+
+サービスアカウントを使い、自分のアカウントは使わないでください。接続しなくてもkankakuは動作します — クライアントが自由記述になるだけです。Hubのクライアント・プロジェクト一覧は毎回のセッション開始時に更新されます（選択画面は更新を少し待ちます）。手動更新には`/kankaku catalog refresh`を使えます。
+
+`/kankaku task`（または`/kankaku task pick`）で、現在のHubプロジェクトの未着手・進行中タスクを選び、このセッションに紐付けます。以降に同期されるタスク行にはそのリンクが付きます。解除は`/kankaku task clear`です。リンクはセッション限りで、`config.json`には保存されず、セッション開始時にも尋ねられません。`/kankaku target pick|clear`でも解除され、サブエージェントには引き継がれません。タスクはHubで作成し、kankakuでは作成しません。担当者の割り当ては行の作成時だけなので、HubのWebアプリで担当者を変更しても、その後の同期で元に戻されません。
+
+Claude Codeでは`/kankaku:task`でHubタスクをセッションに紐付けられます。別のHubへ切り替えると、前のHubの同期状態は再利用されず、すべて再送されます。Hubの行に表示されるエージェントは同期したツールではなく、測定した側（piまたはClaude Code）です。
 
 **[Engram](https://gentlemanprogramming.com/#engram)と連携。** HubにEngramが設定されていれば、各セッションが目的とやったことの要約付きで届き、時間とコストの横に表示されます。Hubサーバーの `KANKAKU_ENGRAM_URL` で有効にします。Engramがなくても、Hubの見た目は変わりません。
 
@@ -69,6 +111,8 @@ kankakuにgentle-aiは不要です。基本はpi自体のイベントから得�
 
 <h2 id="settings">設定</h2>
 
+パネルのAbout画面では、環境変数でのみ設定できる項目がすべて読み取り専用で表示されます。バージョン、解決済みの`KANKAKU_DIR`、Hub URLも確認できます。
+
 <EnvTable locale="ja" />
 
 <h2 id="notes">知っておきたいこと</h2>
@@ -78,6 +122,7 @@ kankakuにgentle-aiは不要です。基本はpi自体のイベントから得�
 - クラッシュしても何も消えません — 「中断」として記録されます。
 - kankakuはコストを推定するだけで、請求はしません。
 - `/kankaku doctor`は通信せずに診断します。
+- `kankaku doctor`（ターミナル）と`/kankaku:doctor`（Claude Code）はインストール全体を診断します。
 
 | 指標 | 内容 |
 |---|---|

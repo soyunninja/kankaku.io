@@ -72,14 +72,22 @@ const i18n = { es: esI18n, en: enI18n, ja: jaI18n }[locale];
     width: 100%;
     outline: none;
   }
+  .commands-group + .commands-group {
+    border-top: 1px solid var(--border);
+    margin-top: 1.5rem;
+    padding-top: 0.5rem;
+  }
   .commands-group h2 {
     font-family: var(--font-mono);
     font-size: 0.88rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--muted-foreground);
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
+    margin-top: 1.25rem;
+    margin-bottom: 0.65rem;
+  }
+  .commands-group + .commands-group h2 {
+    margin-top: 0;
   }
   .commands-list {
     display: flex;
@@ -87,26 +95,30 @@ const i18n = { es: esI18n, en: enI18n, ja: jaI18n }[locale];
   }
   .commands-row {
     display: grid;
-    grid-template-columns: minmax(11rem, auto) 1fr auto;
-    align-items: baseline;
-    gap: 0.75rem;
-    padding: 0.5rem 0.25rem;
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.4rem 0.75rem;
+    padding: 0.7rem 0.25rem;
     border-bottom: 1px solid var(--border);
     font-size: 0.88rem;
   }
   .commands-row__syntax {
+    justify-self: start;
+    max-width: 100%;
     background: var(--muted);
     padding: 0.15rem 0.45rem;
     border-radius: var(--radius-sm);
-    white-space: nowrap;
-    overflow-x: auto;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
   .commands-row__desc {
+    min-width: 0;
     color: var(--muted-foreground);
     display: flex;
     align-items: baseline;
     gap: 0.5rem;
     flex-wrap: wrap;
+    line-height: 1.5;
   }
   .commands-empty {
     font-family: var(--font-mono);
@@ -116,7 +128,19 @@ const i18n = { es: esI18n, en: enI18n, ja: jaI18n }[locale];
 
   @media (max-width: 640px) {
     .commands-row {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .commands-row__syntax {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .commands-row__desc {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .commands-row :global([data-copy-btn]) {
+      grid-column: 2;
+      grid-row: 1;
     }
   }
 </style>

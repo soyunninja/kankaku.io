@@ -12,6 +12,7 @@ const { locale, currentPath } = Astro.props;
 const t = useTranslations(locale);
 const home = localizePath("/", locale);
 const guideHref = localizePath("/docs/guide", locale);
+const cliHref = localizePath("/docs/cli", locale);
 const commandsHref = localizePath("/docs/commands", locale);
 ---
 
@@ -24,6 +25,7 @@ const commandsHref = localizePath("/docs/commands", locale);
 
     <nav class="primary-nav" aria-label={t("nav.docsNav")}>
       <a href={guideHref} aria-current={currentPath === guideHref ? "page" : undefined}>{t("nav.guide")}</a>
+      <a href={cliHref} aria-current={currentPath === cliHref ? "page" : undefined}>{t("nav.cli")}</a>
       <a href={commandsHref} aria-current={currentPath === commandsHref ? "page" : undefined}>{t("nav.commands")}</a>
       <a href="https://github.com/soyunninja/kankaku" class="primary-nav__icon" aria-label={t("nav.github")} title={t("nav.github")}>
         <NerdIcon name="github" />

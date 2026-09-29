@@ -3,10 +3,14 @@
 export const SITE_URL = process.env.SITE_URL || "https://kankaku.io";
 export const SITE_NAME = "kankaku";
 
-/** kankaku (the pi extension) facts — keep in sync with the kankaku repo. Never invent numbers here. */
+/** kankaku client facts (the three packages share one version) — keep in sync with the kankaku monorepo. Never invent numbers here. */
 export const KANKAKU = {
-  version: "0.5.0",
-  npmPackage: "kankaku",
+  version: "1.0.0",
+  npmPackage: "kankaku-pi",
+  cliPackage: "kankaku",
+  claudePackage: "kankaku-claude",
+  hubNpmPackage: "kankaku-hub",
+  cliInstall: "npm install -g kankaku",
   repo: "https://github.com/soyunninja/kankaku",
   repoShort: "github.com/soyunninja/kankaku",
   homepage: "https://github.com/soyunninja/kankaku#readme",
@@ -27,7 +31,7 @@ export const HUB_REPO = "https://github.com/soyunninja/kankaku_hub";
  * the hero, the bottom Install section and the guide's install doc section
  * (see InstallCommand.astro, which builds "pi install <this>" and
  * "gentle-shell install <this>" from it). */
-export const INSTALL_PACKAGE = "npm:kankaku";
+export const INSTALL_PACKAGE = "npm:kankaku-pi";
 
 export const LOCALES = ["en", "es", "ja"] as const;
 export type Locale = (typeof LOCALES)[number];
@@ -53,6 +57,6 @@ export const OG_LOCALES: Record<Locale, string> = {
   ja: "ja_JP",
 };
 
-/** The site has exactly two docs pages per locale: one long-form guide, one command reference. */
-export const DOC_SLUGS = ["guide", "commands"] as const;
+/** The site has exactly three docs pages per locale: guide, CLI, and pi command reference. */
+export const DOC_SLUGS = ["guide", "cli", "commands"] as const;
 export type DocSlug = (typeof DOC_SLUGS)[number];

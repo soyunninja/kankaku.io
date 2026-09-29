@@ -1,0 +1,43 @@
+---
+import { KANKAKU } from "../consts";
+import { useTranslations, type Locale } from "../i18n/utils";
+import CopyButton from "./CopyButton.astro";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const commands = `${KANKAKU.cliInstall}\nkankaku setup`;
+---
+
+<div class="quick-start">
+  <h2 class="quick-start__title">{t("home.quickStartTitle")}</h2>
+  <div class="cmd-block quick-start__command">
+    <div class="cmd-block__bar">
+      <span class="cmd-block__dots"><span></span><span></span><span></span></span>
+      <span class="cmd-block__label">shell</span>
+      <CopyButton text={commands} locale={locale} />
+    </div>
+    <pre><code>{commands}</code></pre>
+  </div>
+  <p class="quick-start__note">{t("home.quickStartNote")}</p>
+</div>
+
+<style>
+  .quick-start {
+    max-width: 32rem;
+  }
+  .quick-start__title {
+    font-size: 1rem;
+    margin: 0 0 0.6rem;
+  }
+  .quick-start__command {
+    margin-bottom: 0.6rem;
+  }
+  .quick-start__note {
+    color: var(--muted-foreground);
+    font-size: 0.85rem;
+    margin: 0.6rem 0 1rem;
+  }
+</style>

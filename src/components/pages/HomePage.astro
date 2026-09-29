@@ -1,33 +1,17 @@
 ---
-import { getImage } from "astro:assets";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import TerminalHero from "../TerminalHero.astro";
-import ScreenshotFigure from "../ScreenshotFigure.astro";
 import NerdIcon, { type IconName } from "../icons/NerdIcon.astro";
-import InstallCommand from "../InstallCommand.astro";
+import QuickStart from "../QuickStart.astro";
 import CopyButton from "../CopyButton.astro";
 import { localizePath, useTranslations, type Locale } from "../../i18n/utils";
 import { DEMO, HUB_REPO, KANKAKU, SITE_URL } from "../../consts";
-
-import hubDashboard from "../../assets/screenshots/hub-dashboard-dark.webp";
-import hubEntriesSessions from "../../assets/screenshots/hub-entries-sessions-dark.webp";
-import hubProject from "../../assets/screenshots/hub-project-dark.webp";
-import hubTaskDetail from "../../assets/screenshots/hub-task-detail-dark.webp";
-import hubEntryDetailLight from "../../assets/screenshots/hub-entry-detail-light.webp";
-import hubCommandsJa from "../../assets/screenshots/hub-commands-ja-dark.webp";
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
 const t = useTranslations(locale);
-
-// The first gallery capture renders eager (above the fold on wide
-// viewports); preloading it at its actual rendered format/width (matching
-// ScreenshotFigure's defaults) shaves the discovery hop for the browser's
-// preload scanner. Cheap: same transform Astro already generates for the
-// <img>, no extra encode.
-const heroImage = await getImage({ src: hubDashboard, width: 1200, format: "avif" });
 
 const steps = [
   { icon: "download" as const, title: t("home.stepInstallTitle"), line: t("home.stepInstallLine") },
@@ -39,10 +23,9 @@ const softwareApplicationNode = {
   "@type": "SoftwareApplication",
   name: "kankaku",
   applicationCategory: "DeveloperApplication",
-  operatingSystem: "macOS, Linux, Windows",
   softwareVersion: KANKAKU.version,
   url: SITE_URL,
-  downloadUrl: `https://www.npmjs.com/package/${KANKAKU.npmPackage}`,
+  downloadUrl: `https://www.npmjs.com/package/${KANKAKU.cliPackage}`,
   codeRepository: KANKAKU.repo,
   license: "https://opensource.org/licenses/MIT",
   offers: {
@@ -73,14 +56,13 @@ const features: { icon: IconName; title: string; line: string }[] = [
   title={t("meta.homeTitle")}
   description={t("meta.homeDescription")}
   jsonLd={[softwareApplicationNode]}
-  preloadImage={{ href: heroImage.src, type: "image/avif" }}
 >
   <!-- Hero -->
   <section class="hero container">
     <div class="hero__copy">
       <p class="kicker">{t("home.heroKicker")}</p>
       <h1>{t("home.heroLine")}</h1>
-      <InstallCommand locale={locale} variant="hero" />
+      <QuickStart locale={locale} />
       <div class="hero__ctas">
         <a class="btn btn--primary" href={localizePath("/docs/guide", locale)}>
           <NerdIcon name="rocket" /> {t("home.heroCtaDocs")}
@@ -92,6 +74,9 @@ const features: { icon: IconName; title: string; line: string }[] = [
           <NerdIcon name="database" /> {t("home.heroCtaDemo")}
         </a>
       </div>
+      <p class="hero__guide-link">
+        <a href={`${localizePath("/docs/guide", locale)}#install`}>{t("home.piGuideLink")}</a>
+      </p>
     </div>
     <div class="hero__terminal">
       <TerminalHero locale={locale} />
@@ -134,26 +119,6 @@ const features: { icon: IconName; title: string; line: string }[] = [
     </div>
   </section>
 
-  <!-- Screenshots: a scroll-driven horizontal gallery. The block pins to the
-       viewport while the page scrolls and the row of captures slides
-       sideways, first capture centered on entry, last one centered on exit.
-       Narrow screens and reduced-motion users get a native horizontal strip. -->
-  <section class="section gallery-section">
-    <p class="container section__lede">{t("home.screenshotsLine")}</p>
-    <div class="gallery" data-gallery style="--n: 6">
-      <div class="gallery__sticky" data-gallery-sticky>
-        <div class="gallery__track" data-gallery-track>
-        <div class="gallery__item"><ScreenshotFigure src={hubDashboard} alt="kankaku hub dashboard: work time, cost and tokens for the period, dark theme" locale={locale} eager /></div>
-        <div class="gallery__item"><ScreenshotFigure src={hubEntriesSessions} alt="kankaku hub entries grouped by session, one expanded, dark theme" locale={locale} /></div>
-        <div class="gallery__item"><ScreenshotFigure src={hubProject} alt="kankaku hub project detail with trend, tasks and cost per model, dark theme" locale={locale} /></div>
-        <div class="gallery__item"><ScreenshotFigure src={hubTaskDetail} alt="kankaku hub task detail listing its sessions with resume commands, dark theme" locale={locale} /></div>
-        <div class="gallery__item"><ScreenshotFigure src={hubEntryDetailLight} alt="kankaku hub entry detail: agent, tokens, segments and technical details, light theme" locale={locale} /></div>
-        <div class="gallery__item"><ScreenshotFigure src={hubCommandsJa} alt="kankaku hub commands reference in Japanese, dark theme" locale={locale} /></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Privacy, 3 bullets -->
   <section class="container section">
     <ul class="privacy-bullets">
@@ -180,52 +145,46 @@ const features: { icon: IconName; title: string; line: string }[] = [
   </section>
 
   <!-- Demo: the public, read-only hub demo (fictional data, viewer login). -->
-  <section id="demo" class="container section">
-    <p class="badge-line">
-      <span class="badge badge--done"><NerdIcon name="check" /> {t("home.statusAvailableLabel")}</span> {t("home.statusAvailable")}
-    </p>
-    <h2 class="section__title">{t("home.demoTitle")}</h2>
-    <p class="section__lede">{t("home.demoLede")}</p>
-    <dl class="demo-creds">
-      <div class="demo-creds__row">
-        <dt>{t("home.demoUrlLabel")}</dt>
-        <dd>
-          <a href={DEMO.url} target="_blank" rel="noopener noreferrer"><code>{DEMO.url}</code></a>
-        </dd>
+  <section id="demo" class="demo-section">
+    <div class="container section">
+      <p class="badge-line">
+        <span class="badge badge--done"><NerdIcon name="check" /> {t("home.statusAvailableLabel")}</span> {t("home.statusAvailable")}
+      </p>
+      <h2 class="section__title">{t("home.demoTitle")}</h2>
+      <p class="section__lede">{t("home.demoLede")}</p>
+      <dl class="demo-creds">
+        <div class="demo-creds__row">
+          <dt>{t("home.demoUrlLabel")}</dt>
+          <dd>
+            <a href={DEMO.url} target="_blank" rel="noopener noreferrer"><code>{DEMO.url}</code></a>
+          </dd>
+        </div>
+        <div class="demo-creds__row">
+          <dt>{t("home.demoEmailLabel")}</dt>
+          <dd>
+            <code>{DEMO.email}</code>
+            <CopyButton text={DEMO.email} locale={locale} />
+          </dd>
+        </div>
+        <div class="demo-creds__row">
+          <dt>{t("home.demoPasswordLabel")}</dt>
+          <dd>
+            <code>{DEMO.password}</code>
+            <CopyButton text={DEMO.password} locale={locale} />
+          </dd>
+        </div>
+      </dl>
+      <div class="hero__ctas">
+        <a class="btn btn--primary" href={DEMO.url} target="_blank" rel="noopener noreferrer">
+          <NerdIcon name="rocket" /> {t("home.demoCta")}
+        </a>
+        <a class="btn btn--ghost" href={HUB_REPO} target="_blank" rel="noopener noreferrer">
+          <NerdIcon name="link" /> {t("home.demoRepo")}
+        </a>
       </div>
-      <div class="demo-creds__row">
-        <dt>{t("home.demoEmailLabel")}</dt>
-        <dd>
-          <code>{DEMO.email}</code>
-          <CopyButton text={DEMO.email} locale={locale} />
-        </dd>
-      </div>
-      <div class="demo-creds__row">
-        <dt>{t("home.demoPasswordLabel")}</dt>
-        <dd>
-          <code>{DEMO.password}</code>
-          <CopyButton text={DEMO.password} locale={locale} />
-        </dd>
-      </div>
-    </dl>
-    <div class="hero__ctas">
-      <a class="btn btn--primary" href={DEMO.url} target="_blank" rel="noopener noreferrer">
-        <NerdIcon name="rocket" /> {t("home.demoCta")}
-      </a>
-      <a class="btn btn--ghost" href={HUB_REPO} target="_blank" rel="noopener noreferrer">
-        <NerdIcon name="link" /> {t("home.demoRepo")}
-      </a>
     </div>
   </section>
 
-  <!-- Install -->
-  <section class="container section section--install">
-    <h2 class="section__title">{t("home.installTitle")}</h2>
-    <InstallCommand locale={locale} variant="section" />
-    <p class="section__lede">
-      <a href={KANKAKU.homepage}>{t("common.viewOnGithub")}</a> · {KANKAKU.repoShort}
-    </p>
-  </section>
 </BaseLayout>
 
 <style>
@@ -246,6 +205,11 @@ const features: { icon: IconName; title: string; line: string }[] = [
     gap: 0.75rem;
     margin-top: 1.5rem;
     flex-wrap: wrap;
+  }
+  .hero__guide-link {
+    color: var(--muted-foreground);
+    font-size: 0.85rem;
+    margin: 1rem 0 0;
   }
   .section {
     padding-block: 2rem;
@@ -290,6 +254,38 @@ const features: { icon: IconName; title: string; line: string }[] = [
     display: flex;
     align-items: baseline;
     gap: 0.6rem;
+  }
+  /* Keep the dark-theme palette local to the demo; the site's tokens and
+     every other section continue to follow the selected theme. */
+  :global(:root[data-theme="light"]) .demo-section {
+    --background: oklch(0.113 0.011 316);
+    --foreground: oklch(0.959 0.009 342);
+    --muted-foreground: oklch(0.673 0.035 345);
+    --primary: oklch(0.778 0.125 346);
+    --primary-foreground: oklch(0.113 0.011 316);
+    --success: oklch(0.884 0.068 157);
+    --success-foreground: oklch(0.113 0.011 316);
+    --border: oklch(0.362 0.060 354 / 55%);
+    --ring: oklch(0.778 0.125 346);
+    background: var(--background);
+    color: var(--foreground);
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :global(:root:not([data-theme])) .demo-section {
+      --background: oklch(0.113 0.011 316);
+      --foreground: oklch(0.959 0.009 342);
+      --muted-foreground: oklch(0.673 0.035 345);
+      --primary: oklch(0.778 0.125 346);
+      --primary-foreground: oklch(0.113 0.011 316);
+      --success: oklch(0.884 0.068 157);
+      --success-foreground: oklch(0.113 0.011 316);
+      --border: oklch(0.362 0.060 354 / 55%);
+      --ring: oklch(0.778 0.125 346);
+      background: var(--background);
+      color: var(--foreground);
+      color-scheme: dark;
+    }
   }
   .badge-line {
     display: inline-flex;
@@ -341,104 +337,4 @@ const features: { icon: IconName; title: string; line: string }[] = [
     }
   }
 
-  /* Screenshots gallery (see the markup comment). --header is set by the
-     script from the sticky site header's real height; --n is the item count.
-     Scroll distance per capture is 70vh; the pinned box is the viewport
-     minus the header, and each capture is sized to fit it whole. */
-  .gallery-section {
-    padding-inline: 0;
-  }
-  .gallery {
-    --header: 3.5rem;
-    /* Pinned box: the whole viewport under the header, so the captures sit
-       centered on screen; the captures themselves are capped at 68vh. */
-    --pin: calc(100vh - var(--header) - env(safe-area-inset-top, 0px));
-    height: calc((var(--n) - 1) * 60vh + var(--pin));
-  }
-  .gallery__sticky {
-    position: sticky;
-    top: calc(var(--header) + env(safe-area-inset-top, 0px));
-    height: var(--pin);
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-  }
-  .gallery__track {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    will-change: transform;
-  }
-  /* Each slot is exactly as wide as its capture (height-driven), so the
-     gap between captures is the real gap. */
-  .gallery__item {
-    flex: 0 0 auto;
-  }
-  .gallery__item :global(.screenshot) {
-    display: flex;
-    justify-content: center;
-  }
-  .gallery__item :global(.screenshot img) {
-    height: 68vh;
-    width: auto;
-    max-width: 86vw;
-    object-fit: contain;
-    /* The captures are macOS window shots: a 25px (3%) black band above
-       the window and a hairline of frame around it. Clip it away so the
-       app fills its slot edge to edge on both grounds. */
-    clip-path: inset(3.1% 0.3% 0.4% 0.3%);
-  }
-  /* Fallback: plain horizontal strip (phones, reduced motion, no JS). */
-  @media (max-width: 700px), (prefers-reduced-motion: reduce) {
-    .gallery { height: auto; }
-    .gallery__sticky {
-      position: static;
-      height: auto;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding-block: 0.5rem 1rem;
-      scrollbar-width: thin;
-    }
-    .gallery__track { transform: none !important; padding-inline: 7vw; gap: 1rem; }
-    .gallery__item { flex-basis: 86vw; scroll-snap-align: center; }
-    .gallery__item :global(.screenshot img) { height: auto; width: 100%; max-width: none; }
-  }
 </style>
-
-<script>
-  // Scroll-driven horizontal gallery. Progress = how far the pinned box has
-  // travelled through its section; the track translates from "first capture
-  // centered" to "last capture centered". Disabled where the CSS fallback
-  // (phones, reduced motion) takes over.
-  const fallback = window.matchMedia("(max-width: 700px), (prefers-reduced-motion: reduce)");
-  for (const gallery of document.querySelectorAll<HTMLElement>("[data-gallery]")) {
-    const sticky = gallery.querySelector<HTMLElement>("[data-gallery-sticky]");
-    const track = gallery.querySelector<HTMLElement>("[data-gallery-track]");
-    if (!sticky || !track) continue;
-    const header = document.querySelector<HTMLElement>(".site-header");
-    const setHeader = () => gallery.style.setProperty("--header", `${header?.offsetHeight ?? 56}px`);
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      if (fallback.matches) { track.style.transform = ""; return; }
-      const items = track.children;
-      if (items.length === 0) return;
-      const first = items[0] as HTMLElement;
-      const last = items[items.length - 1] as HTMLElement;
-      const rect = gallery.getBoundingClientRect();
-      const stickyTop = Number.parseFloat(getComputedStyle(sticky).top) || 0;
-      const distance = gallery.offsetHeight - sticky.offsetHeight;
-      const progress = distance > 0 ? Math.min(1, Math.max(0, (stickyTop - rect.top) / distance)) : 0;
-      const vw = sticky.clientWidth;
-      const startX = (vw - first.offsetWidth) / 2;
-      const endX = (vw - last.offsetWidth) / 2 - last.offsetLeft;
-      track.style.transform = `translate3d(${startX + (endX - startX) * progress}px, 0, 0)`;
-    };
-    const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
-    setHeader();
-    update();
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", () => { setHeader(); schedule(); });
-    fallback.addEventListener("change", schedule);
-  }
-</script>

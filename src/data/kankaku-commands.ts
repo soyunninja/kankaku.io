@@ -26,6 +26,7 @@ export interface KankakuCommandDef {
 }
 
 export const KANKAKU_COMMANDS: KankakuCommandDef[] = [
+  { id: "panel", syntax: "/kankaku", group: "reports", requiresHub: false },
   { id: "summary-today", syntax: "/kankaku", group: "reports", requiresHub: false },
   { id: "summary-all", syntax: "/kankaku all", group: "reports", requiresHub: false },
   { id: "tasks", syntax: "/kankaku tasks", group: "reports", requiresHub: false },
@@ -43,6 +44,8 @@ export const KANKAKU_COMMANDS: KankakuCommandDef[] = [
   { id: "target-show", syntax: "/kankaku target", group: "clientTarget", requiresHub: true },
   { id: "target-pick", syntax: "/kankaku target pick", group: "clientTarget", requiresHub: true },
   { id: "target-clear", syntax: "/kankaku target clear", group: "clientTarget", requiresHub: true },
+  { id: "task-pick", syntax: "/kankaku task", group: "clientTarget", requiresHub: true },
+  { id: "task-clear", syntax: "/kankaku task clear", group: "clientTarget", requiresHub: true },
 
   { id: "catalog-refresh", syntax: "/kankaku catalog refresh", group: "hub", requiresHub: true },
   { id: "sync", syntax: "/kankaku sync", group: "hub", requiresHub: true },

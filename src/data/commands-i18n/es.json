@@ -37,7 +37,7 @@
     "connectBody": "Copia y ejecuta esto en la terminal donde uses pi, sustituyendo la contraseña por la de la cuenta de servicio real — nunca la cuenta del propietario — pídesela a quien administre este hub.",
     "loadInPiTitle": "Cargar el build de esta rama en pi",
     "loadInPiBody": "Para probar este build sin publicarlo ni instalarlo:",
-    "loadInPiNote": "Si ya tienes instalada la versión publicada (pi install npm:kankaku), desinstálala antes: si no, kankaku se carga dos veces y cada prompt se registra por duplicado. Con -e la extensión no llega a los subagentes; para eso instala la copia local con pi install y la ruta absoluta.",
+    "loadInPiNote": "Si ya tienes instalada la versión publicada (pi install npm:kankaku-pi, o el anterior npm:kankaku), desinstálala antes: si no, kankaku se carga dos veces y cada prompt se registra por duplicado. Con -e la extensión no llega a los subagentes; para eso instala la copia local con pi install y la ruta absoluta.",
     "serviceAccountNote": "Usa siempre la cuenta de servicio («role: \"service\"»), nunca la cuenta del propietario — es la única con permiso para escribir «task_entries»/«work_records»."
   },
   "workflow": {
@@ -62,16 +62,20 @@
   "copy": "Copiar",
   "copied": "¡Copiado!",
   "items": {
+    "panel": {
+      "description": "Abre el panel en la TUI de pi para destino, informes, sincronización, exportación, diagnóstico e información; en modo headless muestra los totales de hoy.",
+      "whenToUse": "Para navegar por kankaku de forma interactiva en la TUI; usa los subcomandos para informes directos o en modo headless."
+    },
     "summary-today": {
-      "description": "Muestra los totales de hoy (trabajo, espera, nº de registros) por rol, más el segmento de tareas basado en la unión de intervalos, cada uno con su coste estimado.",
+      "description": "En modo headless, muestra los totales de hoy (trabajo, espera, nº de registros) por rol, más el segmento de tareas basado en la unión de intervalos, cada uno con su coste estimado. Cada línea del informe incluye «cache hit NN%» si se registraron tokens; sin tokens se omite.",
       "whenToUse": "Para ver de un vistazo cuánto has trabajado hoy y su coste, sin salir de pi."
     },
     "summary-all": {
-      "description": "Igual que «/kankaku», pero sumando todos los registros históricos en vez de solo los de hoy.",
+      "description": "Los mismos totales que «/kankaku» en modo headless, pero sumando todos los registros históricos en vez de solo los de hoy.",
       "whenToUse": "Para ver el acumulado completo, por ejemplo antes de revisar el uso total."
     },
     "tasks": {
-      "description": "Una línea por tarea (tiempo, unión de trabajo/espera, coste, nº de subagentes, prompt truncado) de la sesión actual de pi.",
+      "description": "Una línea por tarea (tiempo, unión de trabajo/espera, coste, nº de subagentes, prompt truncado) de la sesión actual de pi. Cada línea del informe incluye «cache hit NN%» si se registraron tokens; sin tokens se omite.",
       "whenToUse": "Para revisar qué tareas se han ejecutado en la sesión en curso y su coste."
     },
     "tasks-all": {
@@ -87,7 +91,7 @@
       "whenToUse": "Para un repaso histórico de todas las sesiones registradas."
     },
     "clients": {
-      "description": "Totales de hoy (trabajo, espera, tiempo total, coste, nº de tareas) agrupados por cliente de facturación. Las tareas sin cliente resuelto se agrupan bajo «(none)».",
+      "description": "Totales de hoy (trabajo, espera, tiempo total, coste, nº de tareas) agrupados por cliente de facturación. Las tareas sin cliente resuelto se agrupan bajo «(none)». Cada línea del informe incluye «cache hit NN%» si se registraron tokens; sin tokens se omite.",
       "whenToUse": "Para ver en qué cliente se ha invertido el tiempo hoy, con o sin hub configurado."
     },
     "clients-all": {
@@ -95,7 +99,7 @@
       "whenToUse": "Para el reparto histórico completo entre clientes."
     },
     "projects": {
-      "description": "Totales de hoy por proyecto, igual que «clients» pero agrupado por proyecto. Solo disponible con un hub configurado.",
+      "description": "Totales de hoy por proyecto, igual que «clients» pero agrupado por proyecto. Solo disponible con un hub configurado. Cada línea del informe incluye «cache hit NN%» si se registraron tokens; sin tokens se omite.",
       "whenToUse": "Para ver en qué proyecto se ha invertido el tiempo hoy."
     },
     "projects-all": {
@@ -125,6 +129,14 @@
     "target-clear": {
       "description": "Limpia el destino fijado a nivel de sesión, dejando que la resolución vuelva a «config.json», «repo_paths» o el selector.",
       "whenToUse": "Para deshacer un «/kankaku target pick» de esta sesión."
+    },
+    "task-pick": {
+      "description": "Muestra las tareas abiertas o en curso del proyecto actual en el hub y vincula la elegida a las entradas sincronizadas de esta sesión. También admite «/kankaku task pick». El vínculo solo dura esta sesión, nunca se guarda en «config.json» y se pierde al elegir o limpiar el destino; los subagentes no lo heredan. La asignación solo se hace al crear la entrada: una sincronización posterior no deshace los cambios hechos en el hub.",
+      "whenToUse": "Para asociar el trabajo de esta sesión con una tarea creada en el hub."
+    },
+    "task-clear": {
+      "description": "Elimina el vínculo con la tarea del hub para esta sesión sin cambiar el destino cliente/proyecto.",
+      "whenToUse": "Para dejar de asociar las entradas sincronizadas posteriores con la tarea elegida."
     },
     "catalog-refresh": {
       "description": "Fuerza una recarga del catálogo de clientes y proyectos desde el hub, sin esperar a que caduque la caché de 6 horas, y confirma cuántos clientes/proyectos se han recibido.",

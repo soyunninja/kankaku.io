@@ -37,7 +37,7 @@
     "connectBody": "Copy and run this in the terminal where you use pi, replacing the password with the real service account's — never the owner account — ask whoever administers this hub for it.",
     "loadInPiTitle": "Load this branch's build in pi",
     "loadInPiBody": "To try this build without publishing or installing it:",
-    "loadInPiNote": "If the published version is already installed (pi install npm:kankaku), uninstall it first: otherwise kankaku loads twice and every prompt is recorded in duplicate. With -e the extension does not reach subagents; for that, install the local checkout with pi install and its absolute path.",
+    "loadInPiNote": "If the published version is already installed (pi install npm:kankaku-pi, or the older npm:kankaku), uninstall it first: otherwise kankaku loads twice and every prompt is recorded in duplicate. With -e the extension does not reach subagents; for that, install the local checkout with pi install and its absolute path.",
     "serviceAccountNote": "Always use the service account (\"role: \\\"service\\\"\"), never the owner account — it's the only one allowed to write \"task_entries\"/\"work_records\"."
   },
   "workflow": {
@@ -62,16 +62,20 @@
   "copy": "Copy",
   "copied": "Copied!",
   "items": {
+    "panel": {
+      "description": "Opens the panel in pi's TUI for target, reports, sync, export, doctor, and about; in headless mode, prints today's totals instead.",
+      "whenToUse": "To navigate kankaku interactively in the TUI; use subcommands for direct reports or headless use."
+    },
     "summary-today": {
-      "description": "Shows today's totals (work, waiting, record count) by role, plus a union-based tasks segment, each with its estimated cost.",
+      "description": "In headless mode, shows today's totals (work, waiting, record count) by role, plus a union-based tasks segment, each with its estimated cost. Report lines include cache hit NN% when tokens were recorded; otherwise it is omitted.",
       "whenToUse": "To see at a glance how much you've worked today and its cost, without leaving pi."
     },
     "summary-all": {
-      "description": "Same as \"/kankaku\", but across every historical record instead of just today's.",
+      "description": "Same totals as headless \"/kankaku\", but across every historical record instead of just today's.",
       "whenToUse": "To see the full accumulated total, e.g. when reviewing overall usage."
     },
     "tasks": {
-      "description": "One line per task (time, union of work/waiting, cost, subagent count, truncated prompt) for the current pi session.",
+      "description": "One line per task (time, union of work/waiting, cost, subagent count, truncated prompt) for the current pi session. Each report line includes cache hit NN% when tokens were recorded; otherwise it is omitted.",
       "whenToUse": "To review which tasks ran in the current session and what they cost."
     },
     "tasks-all": {
@@ -87,7 +91,7 @@
       "whenToUse": "For a historical review of every recorded session."
     },
     "clients": {
-      "description": "Today's totals (work, waiting, wall time, cost, task count) grouped by billing client. Tasks with no resolved client are grouped under \"(none)\".",
+      "description": "Today's totals (work, waiting, wall time, cost, task count) grouped by billing client. Tasks with no resolved client are grouped under \"(none)\". Each report line includes cache hit NN% when tokens were recorded; otherwise it is omitted.",
       "whenToUse": "To see where today's time went by client, with or without a hub configured."
     },
     "clients-all": {
@@ -95,7 +99,7 @@
       "whenToUse": "For the full historical breakdown by client."
     },
     "projects": {
-      "description": "Today's totals by project, same shape as \"clients\" but grouped by project. Only available with a hub configured.",
+      "description": "Today's totals by project, same shape as \"clients\" but grouped by project. Only available with a hub configured. Each report line includes cache hit NN% when tokens were recorded; otherwise it is omitted.",
       "whenToUse": "To see where today's time went by project."
     },
     "projects-all": {
@@ -125,6 +129,14 @@
     "target-clear": {
       "description": "Clears the session-level target, so resolution falls back to \"config.json\", \"repo_paths\", or the picker.",
       "whenToUse": "To undo a \"/kankaku target pick\" set earlier in this session."
+    },
+    "task-pick": {
+      "description": "Lists open/doing tasks in the current hub project and links the selected task to this session's synced entries. Also accepts \"/kankaku task pick\". The link is session-only, never saved to \"config.json\", and is dropped by target pick/clear; subagents do not inherit it. Assignment is create-only, so later syncs do not undo reassignment in the hub.",
+      "whenToUse": "To associate this session's work with a task created in the hub."
+    },
+    "task-clear": {
+      "description": "Drops the current session's hub task link without changing the client/project target.",
+      "whenToUse": "To stop associating subsequent synced entries with the selected hub task."
     },
     "catalog-refresh": {
       "description": "Forces a catalog (clients/projects) refresh from the hub instead of waiting for the 6-hour cache to expire, and reports how many clients/projects came back.",

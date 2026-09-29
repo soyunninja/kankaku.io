@@ -1,4 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="7" fill="#1c1c1c"/>
-  <text x="6" y="23" font-family="JetBrains Mono, ui-monospace, monospace" font-size="19" font-weight="700" fill="#4fb8ad">&gt;_</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="175px" height="175px" viewBox="0 0 175 175" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Grupo</title>
+    <g id="Página-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Grupo">
+            <g id="&gt;_" transform="translate(38.825, 60.827)" fill="#DA1272" fill-rule="nonzero">
+                <polygon id="Trazado" points="7.006 63.506 -5.68434189e-14 54.014 36.612 31.753 -5.68434189e-14 9.492 7.006 0 47.347 25.199 47.347 38.307"></polygon>
+                <polygon id="Trazado" points="96.7845 83.055 52.9405 83.055 52.9405 70.173 96.7845 70.173"></polygon>
+            </g>
+            <rect id="Rectángulo" stroke="#DA1272" stroke-width="17" x="8.5" y="8.5" width="158" height="158" rx="8"></rect>
+        </g>
+    </g>
 </svg>

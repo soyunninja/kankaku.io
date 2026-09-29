@@ -7,11 +7,12 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "pnpm og:check && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
     "i18n:check": "node scripts/check-i18n.mjs",
+    "og:check": "node scripts/generate-og-images.mjs --check",
     "links:check": "node scripts/check-links.mjs",
     "build:font": "node scripts/build-font.mjs",
     "test:e2e": "playwright test",
