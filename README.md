@@ -1,13 +1,12 @@
 # kankaku site
 
-Public, developer-facing site for **kankaku** (the pi extension) and its
-optional hub. Astro, static output, no server, three locales (en default, es,
-ja). Separate Astro project, not part of the `web/` app — see
-[`docs/adr/`](../docs/adr) for why.
+Public, developer-facing site for **kankaku 1.2.0**: the CLI, pi extension,
+Claude Code integration, and optional hub. Astro static output, with three
+locales (en default, es, ja). This is a standalone site project.
 
 ## Stack
 
-- **Astro** (latest stable), TypeScript strict, `astro:content` collections + MDX.
+- **Astro 7**, TypeScript strict, `astro:content` collections + MDX.
 - **Plain CSS** with the app's own design tokens ported as CSS custom
   properties (`src/styles/tokens.css`) — no Tailwind. Justification: this
   site is almost entirely long-form docs and a handful of static sections;
@@ -23,23 +22,24 @@ ja). Separate Astro project, not part of the `web/` app — see
 
 ## Develop
 
-```
+```sh
 pnpm install
 pnpm dev            # http://localhost:4321
 ```
 
 ## Build & preview
 
-```
+```sh
 pnpm build
 pnpm preview
 ```
 
 ## Tests
 
-```
+```sh
 pnpm run i18n:check       # es/en/ja key parity (ui.ts, docs pages, commands data)
-pnpm build && pnpm run links:check   # broken internal links/anchors in dist/
+pnpm run og:check         # localized OG copy and generated PNG bytes
+pnpm build && pnpm run links:check   # build includes og:check; verify internal links/anchors
 pnpm run test:e2e         # Playwright smoke: renders, theme, i18n, copy button, no overflow
 pnpm run test:a11y        # axe-core, every page, light + dark
 ```
@@ -54,20 +54,20 @@ toolbar rather than the build. You can keep `pnpm dev` running while they run.
 
 ## Adding a page
 
-There are exactly three pages per locale: Home, **Guide**
-(`src/content/docs/<locale>/guide.mdx`), and **Commands**
-(`src/content/docs/<locale>/commands.mdx`, rendered from
-`src/data/kankaku-commands.ts` + `src/data/commands-i18n/<locale>.json`).
-To add content, edit the Guide — add a section + an entry in its
-`<GuideToc>` — rather than adding a new top-level page; the owner's explicit
-direction is to keep the nav to Home/Guide/Commands only.
+Each locale has Home plus three docs pages: **Guide**, **CLI**, and
+**Commands** (`src/content/docs/<locale>/{guide,cli,commands}.mdx`). Commands
+is the pi `/kankaku` reference, rendered from `src/data/kankaku-commands.ts`
+and `src/data/commands-i18n/<locale>.json`; the CLI has its own page. Add a
+section with a stable `id` to the existing page when the topic belongs there.
+A new docs slug needs an MDX file in all three locales and a navigation link.
+Keep `DOC_SLUGS` in `src/consts.ts` and the smoke/a11y page sets in sync.
 
 ## Adding a locale
 
 1. Add the locale to `LOCALES` in `src/consts.ts` and `astro.config.mjs`'s `i18n.locales`.
 2. Add a block to every locale object in `src/i18n/ui.ts` (the build-time
    check fails if keys don't match across locales).
-3. Add `src/content/docs/<locale>/{guide,commands}.mdx`.
+3. Add `src/content/docs/<locale>/{guide,cli,commands}.mdx`.
 4. Add a `src/data/commands-i18n/<locale>.json`.
 5. Add a `src/pages/<locale>/index.astro`, `404.astro`, `docs/[slug].astro`
    (copy an existing non-default locale's three files, change the locale
@@ -79,7 +79,8 @@ direction is to keep the nav to Home/Guide/Commands only.
 ## Locale routing and the first-visit redirect
 
 English is the default locale and is unprefixed: `/`, `/docs/guide`,
-`/docs/commands`. Spanish lives under `/es/...`, Japanese under `/ja/...`.
+`/docs/cli`, `/docs/commands`. Spanish lives under `/es/...`, Japanese under
+`/ja/...`.
 `src/i18n/utils.ts#localizePath` and everything that derives from
 `DEFAULT_LOCALE` (canonical URLs, hreflang alternates, `x-default` — always
 the English URL — `og:locale`, JSON-LD `inLanguage`, the sitemap) follow
@@ -152,20 +153,16 @@ server {
 }
 ```
 
-## Refreshing screenshots
+## Demo content
 
-The home page shows hand-taken window captures of the hub
-(`src/assets/screenshots/hub-*.webp`, ~1280px wide, 50–95 KB each), made
-against the isolated demo stack (`scripts/isolated-stack.sh up <dir> --seed
---seed-profile rich` in the repo root), so every screen shows fictional data
-only (SITE-REQ-009). To refresh: take new window captures, export as WebP,
-replace the files keeping their names, and check the figure `alt` texts in
-`src/components/pages/HomePage.astro` still describe them. The web app's own
-full-page e2e screenshots live in `../web/docs/screenshots/` and are not used
-here any more (they were several MB each).
+The home page links to the read-only hub at `https://demo.kankaku.io` instead
+of embedding hub screenshots. Demo credentials and the hub source link are
+centralized in `src/consts.ts`. Keep any future screenshot or example data
+fictional, and verify its alternative text if displayed.
+
 ## Rebuilding the font subset
 
-```
+```sh
 # 1. Download "JetBrainsMono.zip" from
 #    https://github.com/ryanoasis/nerd-fonts/releases/latest and extract
 #    JetBrainsMonoNerdFontMono-{Regular,Bold}.ttf into scripts/.font-src/
@@ -180,7 +177,7 @@ font first (a quick `fontkit` script, not checked in), add it to both
 
 ## Regenerating OG images
 
-```
+```sh
 node scripts/generate-og-images.mjs
 ```
 
@@ -193,9 +190,7 @@ pointed at `dist/`, PocketBase's own `publicDir`, ...). The production origin is
 `astro.config.mjs`); set the `SITE_URL` environment variable only to build
 a preview for another origin.
 
-## Before this goes public
-
-- DNS for `kankaku.io` pointing at the host that serves `dist/`, with HTTPS.
-- A public repo link for the hub (kankaku-hub is private today).
-- Native review of the Japanese copy — flagged in the footer as
-  machine-authored.
+The hub source is public at
+[github.com/soyunninja/kankaku_hub](https://github.com/soyunninja/kankaku_hub).
+The Japanese copy is marked as machine-authored in the footer; have a native
+speaker review it before treating the translation as final.
